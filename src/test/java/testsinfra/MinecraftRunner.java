@@ -45,7 +45,12 @@ public class MinecraftRunner extends BlockJUnit4ClassRunner {
 
 	// This is done like this just so that we can run stuff before invoking the parent constructor
 	private static Class<?> trick(Class<?> testClass) throws InitializationError {
-		System.setProperty("fml.coreMods.load", System.getProperty("fml.coreMods.load") + "," + "org.spongepowered.mod.SpongeCoremod");
+		String existing = System.getProperty("fml.coreMods.load");
+		if (existing == null) {
+			existing = "";
+		}
+
+		System.setProperty("fml.coreMods.load", existing + "," + "org.spongepowered.mod.SpongeCoremod");
 		try {
 			if (!starter.isRunning()) {
 				starter.startServer();

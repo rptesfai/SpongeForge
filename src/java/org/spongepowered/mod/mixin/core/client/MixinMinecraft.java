@@ -27,11 +27,16 @@ package org.spongepowered.mod.mixin.core.client;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.world.GameType;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.WorldType;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
@@ -51,7 +56,10 @@ import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft implements IMixinMinecraft {
@@ -65,6 +73,10 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     @Shadow private LanguageManager mcLanguageManager;
     @Shadow private IntegratedServer integratedServer;
+
+    @Shadow public abstract void displayGuiScreen(@Nullable GuiScreen guiScreenIn);
+
+    @Shadow public abstract void launchIntegratedServer(String folderName, String worldName, @Nullable WorldSettings worldSettingsIn);
 
     private GuiOverlayDebug debugGui;
     private Text kickMessage;
@@ -156,5 +168,21 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             loadingScreen.displayLoadingString(loadingString);
             this.kickMessage = null;
         }
+    }
+
+    @Redirect(method = "init", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;serverName:Ljava/lang/String;", ordinal = 0))
+    public String onGetServerName(Minecraft minecraft) {
+        return "blah";
+    }
+
+    @Redirect(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/client/FMLClientHandler;connectToServerAtStartup(Ljava/lang/String;I)V"))
+    public void onConnect(FMLClientHandler handler, String serverName, int serverPort) {
+        this.displayGuiScreen(null);
+
+        long seed = new Random().nextLong();
+        String folderName = "MCTestWorld-" + String.valueOf(seed).substring(0, 5);
+
+        WorldSettings worldsettings = new WorldSettings(seed, GameType.CREATIVE, false, false, WorldType.FLAT);
+        this.launchIntegratedServer(folderName, folderName, worldsettings);
     }
 }
