@@ -25,17 +25,16 @@
 package mctester;
 
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameLoadCompleteEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.mctester.framework.TesterThread;
+import org.spongepowered.mctester.framework.TesterManager;
 
 @Plugin(id = "mctester_forge", name = "McTester Forge", description = "The Forge component of McTester")
 public class McTesterForgeSupport {
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
-        TesterThread.runTests();
+        TesterManager.runTestThread();
     }
 
 }

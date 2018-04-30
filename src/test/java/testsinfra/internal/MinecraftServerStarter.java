@@ -1,6 +1,7 @@
 package testsinfra.internal;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
 import com.googlecode.junittoolbox.PollingWait;
@@ -46,7 +47,15 @@ public class MinecraftServerStarter {
 		// TODO instead ch.vorburger.minecraft.testsinfra.GradleStartTestServer.getTweakClass()
 		//new GradleStartTestServer().launch(args);
 		Class clazz = Class.forName("GradleStart");
-		clazz.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+		Thread wrapperThread = new Thread(() -> {
+			try {
+				clazz.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+
+		wrapperThread.start();
 	}
 
 	/**

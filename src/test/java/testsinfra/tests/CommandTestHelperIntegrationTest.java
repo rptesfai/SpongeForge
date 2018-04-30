@@ -24,6 +24,7 @@
  */
 package testsinfra.tests;
 
+import org.spongepowered.api.Platform;
 import org.spongepowered.mctester.McTester;
 import testsinfra.MinecraftRunner;
 import org.junit.Test;
@@ -41,9 +42,10 @@ public class CommandTestHelperIntegrationTest {
 
 
 	@Test public void helpHelp() {
-		Sponge.getCommandManager().process(Sponge.getServer().getConsole(), "sponge version");
-		System.err.println("All done!");
-		McTester tester = McTester.INSTANCE;
+		Sponge.getScheduler().createTaskBuilder().execute(() -> {
+			Sponge.getCommandManager().process(Sponge.getServer().getConsole(), "sponge version");
+			System.err.println("All done!");
+		}).submit(Sponge.getPlatform().getContainer(Platform.Component.IMPLEMENTATION));
 	}
 
 

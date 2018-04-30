@@ -78,7 +78,6 @@ public class MinecraftRunner extends BlockJUnit4ClassRunner {
 	protected Object createTest() throws Exception {
 		Object object = super.createTest();
 		// TODO Later support @Inject, similar to https://github.com/eclipse/xtext/blob/master/plugins/org.eclipse.xtext.junit4/src/org/eclipse/xtext/junit4/XtextRunner.java
-		object.getClass().getField("game").set(object, starter.getGame());
 		return object;
 	}
 
