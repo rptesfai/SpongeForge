@@ -22,19 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mctester;
+package org.spongepowered.mod.mctester.internal.internal;
 
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.mod.mctester.internal.RunnerEvents;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-@Plugin(id = "mctester_forge", name = "McTester Forge", description = "The Forge component of McTester")
-public class McTesterForgeSupport {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.spongepowered.api.Game;
 
-    @Listener
-    public void onPlayerJoin(ClientConnectionEvent.Join event) {
-        RunnerEvents.setPlayerJoined();
-    }
+import org.spongepowered.mod.mctester.internal.MinecraftRunner;
+
+/**
+ * Integration Test for MinecraftRunner.
+ */
+@RunWith(MinecraftRunner.class)
+public class MinecraftRunnerSelfTest {
+
+	// TODO @Inject
+	public Game game;
+
+	@Test public void testTestInfrastructure() throws Throwable {
+		assertNotNull(game);
+		assertTrue(game.getPluginManager().isLoaded(TestsRunnerPlugin.ID));
+		assertTrue(game == TestsRunnerPlugin.game);
+	}
 
 }

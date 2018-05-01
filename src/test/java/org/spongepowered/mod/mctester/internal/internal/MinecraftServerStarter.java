@@ -1,13 +1,37 @@
-package testsinfra.internal;
+/*
+ * This file is part of Sponge, licensed under the MIT License (MIT).
+ *
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
+ * Copyright (c) contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.spongepowered.mod.mctester.internal.internal;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
 import com.googlecode.junittoolbox.PollingWait;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
+import org.spongepowered.mod.mctester.internal.RunnerEvents;
 
 /**
  * Helper to programmatically manage a Minecraft server.
@@ -43,13 +67,13 @@ public class MinecraftServerStarter {
 	 * @throws Throwable
 	 */
 	public void startServer() throws Throwable {
-		String[] args = new String[] { "--tweakClass", "org.spongepowered.vanilla.launch.server.VanillaServerTweaker", "--noCoreSearch" };
+		String[] args = new String[] { "--tweakClass", "org.spongepowered.mod.mctester.internal.MinecraftRunnerTweaker", "--gameDir", "/home/aaron/repos/sponge/dev/run/mctester" };
 		// TODO instead ch.vorburger.minecraft.testsinfra.GradleStartTestServer.getTweakClass()
 		//new GradleStartTestServer().launch(args);
 		Class clazz = Class.forName("GradleStart");
 		Thread wrapperThread = new Thread(() -> {
 			try {
-				clazz.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+				clazz.getMethod("main", String[].class).invoke(null, (Object) args);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -64,7 +88,8 @@ public class MinecraftServerStarter {
 	 * @throws Throwable
 	 */
 	public void waitForServerStartupCompletion() throws Throwable {
-		// we CANNOT use TestsRunnerPlugin.isServerStarted == true
+		RunnerEvents.waitForPlayerJoin();
+/*		// we CANNOT use TestsRunnerPlugin.isServerStarted == true
 		// because the TestsRunnerPlugin will get loaded by a net.minecraft.launchwrapper.LaunchClassLoader,
 		// so it's static field won't be the same as the one in our current classloader,
 		// but we can work around this problem, like this:
@@ -79,13 +104,8 @@ public class MinecraftServerStarter {
 		waiter.until(() -> Boolean.TRUE.equals(isServerStartedField.get(null)));
 
 		Field gameField = testsRunnerPluginClassFromLaunchClassLoader.getDeclaredField("game");
-		gameField.setAccessible(true);
-		game = /* DO NOT (Game) */ gameField.get(null);
-	}
-
-	public Object getGame() {
-		checkIfStarted();
-		return game;
+		gameField.setAccessible(true);*/
+		//game = /* DO NOT (Game) */ gameField.get(null);
 	}
 
 	public ClassLoader getMinecraftServerClassLoader() {
@@ -108,11 +128,13 @@ public class MinecraftServerStarter {
 	}
 
 	private void checkIfStarted() throws IllegalStateException {
-		if (!isRunning())
+		if (!isRunning()) {
 			throw new IllegalStateException("Minecraft Server has not yet started (or already shut down)");
+		}
 	}
 
 	public boolean isRunning() {
-		return game != null;
+		return RunnerEvents.hasPlayerJoined();
 	}
+
 }

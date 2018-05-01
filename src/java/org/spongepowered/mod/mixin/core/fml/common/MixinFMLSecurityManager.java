@@ -1,7 +1,7 @@
 /*
- * This file is part of Michael Vorburger's SwissKnightMinecraft project, licensed under the MIT License (MIT).
+ * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) Michael Vorburger <http://www.vorburger.ch>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,31 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package testsinfra.tests;
+package org.spongepowered.mod.mixin.core.fml.common;
 
-import org.spongepowered.api.Platform;
-import org.spongepowered.mctester.McTester;
-import testsinfra.MinecraftRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.Sponge;
+import net.minecraftforge.fml.relauncher.FMLSecurityManager;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-/**
- * Integration test for CommandTestHelper.
- *
- * @author Michael Vorburger
- */
-@RunWith(MinecraftRunner.class)
-public class CommandTestHelperIntegrationTest {
+import java.security.Permission;
 
+@Mixin(FMLSecurityManager.class)
+public class MixinFMLSecurityManager {
 
-	@Test public void helpHelp() {
-		Sponge.getScheduler().createTaskBuilder().execute(() -> {
-			Sponge.getCommandManager().process(Sponge.getServer().getConsole(), "sponge version");
-			System.err.println("All done!");
-		}).submit(Sponge.getPlatform().getContainer(Platform.Component.IMPLEMENTATION));
-	}
-
+    @Redirect(method = "checkPermission(Ljava/security/Permission;)V", at = @At(value = "INVOKE", target = "Ljava/security/Permission;getName()Ljava/lang/String;"))
+    public String onGetName(Permission permission) {
+        // Only disable the setSecurityManager check. We want to leave the other checks enabled
+        // up until the moment we replace the SecurityManager (right before shutdown)
+        if (permission.getName().equals("setSecurityManager")) {
+            return null;
+        }
+        return permission.getName();
+    }
 
 }

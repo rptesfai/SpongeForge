@@ -22,19 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mctester;
+package org.spongepowered.mod.mctester.internal.internal;
 
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.mod.mctester.internal.RunnerEvents;
+import java.util.List;
+import java.util.Map;
 
-@Plugin(id = "mctester_forge", name = "McTester Forge", description = "The Forge component of McTester")
-public class McTesterForgeSupport {
+import net.minecraftforge.gradle.GradleStartCommon;
 
-    @Listener
-    public void onPlayerJoin(ClientConnectionEvent.Join event) {
-        RunnerEvents.setPlayerJoined();
-    }
+public class GradleStartTestServer extends GradleStartCommon {
 
+	// public static void main(String[] args) throws Throwable {
+	//     (new GradleStartTestServer()).launch(args);
+	// }
+
+	@Override
+	public void launch(String[] args) throws Throwable {
+		super.launch(args);
+	};
+
+	@Override
+	protected String getTweakClass() {
+		return "";
+	}
+
+	@Override
+	protected String getBounceClass() {
+		return "net.minecraft.launchwrapper.Launch";
+	}
+
+	@Override
+	protected void preLaunch(Map<String, String> argMap, List<String> extras) {
+	}
+
+	@Override
+	protected void setDefaultArguments(Map<String, String> argMap) {
+	}
 }

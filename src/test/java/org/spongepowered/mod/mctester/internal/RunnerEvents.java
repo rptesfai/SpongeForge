@@ -1,7 +1,7 @@
 /*
- * This file is part of Michael Vorburger's SwissKnightMinecraft project, licensed under the MIT License (MIT).
+ * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) Michael Vorburger <http://www.vorburger.ch>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,30 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package testsinfra.internal;
+package org.spongepowered.mod.mctester.internal;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.google.common.util.concurrent.SettableFuture;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.spongepowered.api.Game;
+public class RunnerEvents {
 
-import testsinfra.MinecraftRunner;
+    private static SettableFuture<Void> playerJoined = SettableFuture.create();
 
-/**
- * Integration Test for MinecraftRunner.
- */
-@RunWith(MinecraftRunner.class)
-public class MinecraftRunnerSelfTest {
+    public static void waitForPlayerJoin() {
+        try {
+            playerJoined.get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	// TODO @Inject
-	public Game game;
+    public static void setPlayerJoined() {
+        playerJoined.set(null);
+    }
 
-	@Test public void testTestInfrastructure() throws Throwable {
-		assertNotNull(game);
-		assertTrue(game.getPluginManager().isLoaded(TestsRunnerPlugin.ID));
-		assertTrue(game == TestsRunnerPlugin.game);
-	}
+    public static boolean hasPlayerJoined() {
+        return playerJoined.isDone();
+    }
 
 }

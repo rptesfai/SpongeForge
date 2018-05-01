@@ -22,19 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mctester;
+package org.spongepowered.mod.mctester.internal;
 
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.mod.mctester.internal.RunnerEvents;
+import net.minecraft.launchwrapper.ITweaker;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 
-@Plugin(id = "mctester_forge", name = "McTester Forge", description = "The Forge component of McTester")
-public class McTesterForgeSupport {
+import java.io.File;
+import java.util.List;
 
-    @Listener
-    public void onPlayerJoin(ClientConnectionEvent.Join event) {
-        RunnerEvents.setPlayerJoined();
+public class MinecraftRunnerTweaker implements ITweaker {
+
+    @Override
+    public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
+
     }
 
+    @Override
+    public void injectIntoClassLoader(LaunchClassLoader classLoader) {
+        classLoader.addClassLoaderExclusion("org.spongepowered.mod.mctester.internal");
+    }
+
+    @Override
+    public String getLaunchTarget() {
+        return null;
+    }
+
+    @Override
+    public String[] getLaunchArguments() {
+        return new String[0];
+    }
 }

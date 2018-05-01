@@ -1,7 +1,7 @@
 /*
- * This file is part of Michael Vorburger's SwissKnightMinecraft project, licensed under the MIT License (MIT).
+ * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) Michael Vorburger <http://www.vorburger.ch>
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
  * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package testsinfra.tests;
+package org.spongepowered.mod.mctester.internal.tests;
 
 import com.google.inject.Inject;
 import org.spongepowered.api.Game;

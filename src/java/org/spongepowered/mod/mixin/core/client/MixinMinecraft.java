@@ -185,4 +185,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         WorldSettings worldsettings = new WorldSettings(seed, GameType.CREATIVE, false, false, WorldType.FLAT);
         this.launchIntegratedServer(folderName, folderName, worldsettings);
     }
+
+    @Redirect(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V"))
+    public void onSystemExitCalled(int code) {
+        // Do nothing - we want to exit cleanly through JUnit
+    }
 }
