@@ -36,4 +36,6 @@ public interface IMixinMinecraft {
     Text getSinglePlayerKickMessage();
 
     void setSinglePlayerKickMessage(Text text);
+
+    boolean isRunning();
 }

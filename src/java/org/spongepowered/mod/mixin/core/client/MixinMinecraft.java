@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.client;
 
+import com.flowpowered.noise.module.combiner.Min;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
@@ -78,6 +79,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     @Shadow public abstract void launchIntegratedServer(String folderName, String worldName, @Nullable WorldSettings worldSettingsIn);
 
+    @Shadow private volatile boolean running;
     private GuiOverlayDebug debugGui;
     private Text kickMessage;
     private boolean isNewSave;
@@ -189,5 +191,18 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Redirect(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V"))
     public void onSystemExitCalled(int code) {
         // Do nothing - we want to exit cleanly through JUnit
+    }
+
+    @Inject(method = "stopIntegratedServer", at = @At("HEAD"), cancellable = true)
+    private static void onStopIntegratedServer(CallbackInfo ci) {
+        // If we're already shutting down, don't try to shutdown again
+        if (Minecraft.getMinecraft() != null && !((IMixinMinecraft) Minecraft.getMinecraft()).isRunning()) {
+            ci.cancel();
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.running;
     }
 }

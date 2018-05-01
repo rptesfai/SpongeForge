@@ -24,13 +24,20 @@
  */
 package mctester;
 
+import net.minecraft.client.Minecraft;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.mod.mctester.internal.RunnerEvents;
 
 @Plugin(id = "mctester_forge", name = "McTester Forge", description = "The Forge component of McTester")
 public class McTesterForgeSupport {
+
+    @Listener
+    public void onConstruction(GameConstructionEvent event) {
+        Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
+    }
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
