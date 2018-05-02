@@ -22,28 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mctester.internal;
+package org.spongepowered.mod.event;
 
-import com.google.common.util.concurrent.SettableFuture;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class RunnerEvents {
+public class NormalTest {
 
-    private static SettableFuture<Void> playerJoined = SettableFuture.create();
-
-    public static void waitForPlayerJoin() {
-        try {
-            playerJoined.get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void setPlayerJoined() {
-        playerJoined.set(null);
-    }
-
-    public static boolean hasPlayerJoined() {
-        return playerJoined.isDone();
+    @Test
+    public void superSimple() {
+        Assert.assertEquals(1, 2);
     }
 
 }
