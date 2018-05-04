@@ -39,9 +39,9 @@ import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.mctester.main.McTester;
-import org.spongepowered.mctester.main.TestUtils;
-import org.spongepowered.mctester.main.framework.Client;
+import org.spongepowered.mctester.test.internal.old.McTester;
+import org.spongepowered.mctester.test.internal.old.TestUtils;
+import org.spongepowered.mctester.test.internal.old.framework.Client;
 import org.spongepowered.mctester.test.internal.MinecraftRunner;
 
 @RunWith(MinecraftRunner.class)
@@ -86,7 +86,7 @@ public class SimpleMinecraftTester {
 
 
     @Test
-    public void chatTest() {
+    public void chatTest() throws Throwable {
         final Text[] recievedMessage = new Text[1];
 
         testUtils.listenOneShot(MessageChannelEvent.Chat.class, new EventListener<MessageChannelEvent.Chat>() {
@@ -98,20 +98,25 @@ public class SimpleMinecraftTester {
         });
         client.sendMessage("Hello, world!");
 
-        game.getServer().getBroadcastChannel().send(Text.of("From a different thread!"), ChatTypes.SYSTEM);
-        game.getServer().getBroadcastChannel().send(Text.of("Success: ", recievedMessage[0]), ChatTypes.SYSTEM);
+        ItemStack serverStack = testUtils.batchActions(() -> {
+            game.getServer().getBroadcastChannel().send(Text.of("From a different thread!"), ChatTypes.SYSTEM);
+            game.getServer().getBroadcastChannel().send(Text.of("Success: ", recievedMessage[0]), ChatTypes.SYSTEM);
 
-        ItemStack serverStack = ItemStack.of(ItemTypes.GOLD_INGOT, 5);
+            ItemStack stack = ItemStack.of(ItemTypes.GOLD_INGOT, 5);
 
-        Hotbar hotbar = (Hotbar) McTester.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
-        hotbar.set(new SlotIndex(hotbar.getSelectedSlotIndex()), serverStack);
+            Hotbar hotbar = (Hotbar) McTester.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
+            hotbar.set(new SlotIndex(hotbar.getSelectedSlotIndex()), stack);
+            return stack;
+        });
+
 
         // We sleep two ticks to guarantee that the client has been updated.
         // During the next tick, the server will send our inventory changes to the client.
         // However, we don't want to rely on this happening at any particular point during the tick,
         // so we wait two ticks to guarantee that the update packets have been sent by the time
         // our code runs.
-        testUtils.sleepTicks(2);
+        //testUtils.sleepTicks(2);
+
 
         ItemStack clientStack = client.getItemInHand(HandTypes.MAIN_HAND);
         boolean eq = ItemStackComparators.ALL.compare(serverStack, clientStack) == 0;
