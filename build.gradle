@@ -148,7 +148,7 @@ uploadArchives {
 
 apply from: 'changelog.gradle'
 
-dependencies {
+/*dependencies {
     testCompile 'com.googlecode.junit-toolbox:junit-toolbox:2.4'
     testCompile project(':SpongeCommon:mctester')
 }
@@ -178,4 +178,4 @@ def addGradleStart() {
     ideaConv.getModule().getScopes().get("COMPILE").get("plus").add(project.getConfigurations().getByName("forgeGradleGradleStart"));
 }
 
-addGradleStart()
+addGradleStart()*/
