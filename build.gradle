@@ -84,9 +84,6 @@ jar {
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.SourceSet
-import org.gradle.plugins.ide.idea.model.IdeaModel
 
 task shadowDevJar(type: ShadowJar) {
     classifier = 'dev-shaded'
@@ -147,35 +144,3 @@ uploadArchives {
 }
 
 apply from: 'changelog.gradle'
-
-/*dependencies {
-    testCompile 'com.googlecode.junit-toolbox:junit-toolbox:2.4'
-    testCompile project(':SpongeCommon:mctester')
-}
-
-def addGradleStart() {
-    project.logger.warn("SpongeForge: Hacking forgegradle stuff")
-
-    def javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java")
-
-
-
-    def main = javaConv.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-    def test = javaConv.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME)
-
-    main.setCompileClasspath(main.getCompileClasspath()
-                                     .plus(project.getConfigurations().getByName("forgeGradleGradleStart"))
-
-    )
-    test.setCompileClasspath(test.getCompileClasspath()
-                                     .plus(project.getConfigurations().getByName("forgeGradleGradleStart"))
-    )
-    test.setRuntimeClasspath(test.getRuntimeClasspath()
-                                     .plus(project.getConfigurations().getByName("forgeGradleGradleStart"))
-    )
-
-    def ideaConv= (IdeaModel) project.getExtensions().getByName("idea")
-    ideaConv.getModule().getScopes().get("COMPILE").get("plus").add(project.getConfigurations().getByName("forgeGradleGradleStart"));
-}
-
-addGradleStart()*/

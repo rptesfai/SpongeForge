@@ -37,14 +37,13 @@ import org.spongepowered.asm.lib.Opcodes;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 /**
  * Really wish this wasn't necessary but unfortunately FML doesn't have any
  * mechanism to shut down the VM when a fatal error occurs.
  */
-public final class TerminateVM {
-
+public final class TerminateVM implements IExitHandler {
+    
     static class MasqueradeClassLoader extends ClassLoader {
 
         final LaunchClassLoader parent;
@@ -56,7 +55,7 @@ public final class TerminateVM {
             this.className = masqueradePackage + ".TerminateVM";
             this.classRef = this.className.replace('.', '/');
         }
-
+        
         String getClassName() {
             return this.className;
         }
@@ -71,7 +70,7 @@ public final class TerminateVM {
                         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
                             super.visit(version, access | Opcodes.ACC_PUBLIC, MasqueradeClassLoader.this.classRef, signature, superName, interfaces);
                         }
-
+                        
                         @Override
                         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                             if ("terminate".equals(name)) {
@@ -100,15 +99,15 @@ public final class TerminateVM {
             } catch (IOException ex) {
                 // sad face
             }
-
+            
             return this.parent.findClass(name);
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     public static void terminate(String masqueradePackage, int status) {
         final Logger log = LogManager.getLogger("Sponge");
-
+        
         try {
             log.info("Attempting to shut down the VM cleanly");
             FMLCommonHandler.instance().exitJava(status, true);
@@ -116,22 +115,20 @@ public final class TerminateVM {
             log.info("Clean shutdown failed, forcing VM termination");
         }
 
-        Object handler = null;
+        IExitHandler handler = null;
         try {
             MasqueradeClassLoader cl = new MasqueradeClassLoader(Launch.classLoader, masqueradePackage);
-            Constructor<?> ctor = ((Class<?>) Class.forName(cl.getClassName(), true, cl)).getDeclaredConstructor();
+            Constructor<IExitHandler> ctor = ((Class<IExitHandler>) Class.forName(cl.getClassName(), true, cl)).getDeclaredConstructor();
             ctor.setAccessible(true);
             handler = ctor.newInstance();
-
-            Method exit = handler.getClass().getMethod("exit", int.class);
-            exit.invoke(handler, status);
         } catch (Throwable th) {
             log.catching(th);
-
-            throw new ThreadDeath();
+            handler = new TerminateVM();
         }
+        handler.exit(status);
     }
 
+    @Override
     public void exit(int status) {
         TerminateVM.systemExit(status);
     }

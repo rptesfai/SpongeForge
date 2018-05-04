@@ -24,20 +24,14 @@
  */
 package org.spongepowered.mod.mixin.core.client;
 
-import com.flowpowered.noise.module.combiner.Min;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.world.GameType;
-import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
@@ -57,10 +51,7 @@ import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft implements IMixinMinecraft {
@@ -75,11 +66,6 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Shadow private LanguageManager mcLanguageManager;
     @Shadow private IntegratedServer integratedServer;
 
-    @Shadow public abstract void displayGuiScreen(@Nullable GuiScreen guiScreenIn);
-
-    @Shadow public abstract void launchIntegratedServer(String folderName, String worldName, @Nullable WorldSettings worldSettingsIn);
-
-    @Shadow private volatile boolean running;
     private GuiOverlayDebug debugGui;
     private Text kickMessage;
     private boolean isNewSave;
