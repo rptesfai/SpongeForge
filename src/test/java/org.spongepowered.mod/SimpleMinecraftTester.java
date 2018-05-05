@@ -35,14 +35,15 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackComparators;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
+import org.spongepowered.api.item.inventory.entity.PlayerInventory;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.mctester.test.internal.old.McTester;
-import org.spongepowered.mctester.test.internal.old.TestUtils;
-import org.spongepowered.mctester.test.internal.old.framework.Client;
-import org.spongepowered.mctester.test.internal.MinecraftRunner;
+import org.spongepowered.mctester.internal.McTester;
+import org.spongepowered.mctester.internal.TestUtils;
+import org.spongepowered.mctester.internal.framework.Client;
+import org.spongepowered.mctester.junit.MinecraftRunner;
 
 @RunWith(MinecraftRunner.class)
 public class SimpleMinecraftTester {
@@ -51,10 +52,10 @@ public class SimpleMinecraftTester {
     private Client client;
     private TestUtils testUtils;
 
-    public SimpleMinecraftTester(Game game, Client client, TestUtils testUtils) {
-        this.game = game;
-        this.client = client;
+    public SimpleMinecraftTester(TestUtils testUtils) {
         this.testUtils = testUtils;
+        this.game = testUtils.getGame();
+        this.client = testUtils.getClient();
 
     }
 
@@ -98,6 +99,9 @@ public class SimpleMinecraftTester {
         });
         client.sendMessage("Hello, world!");
 
+        int x = 2;
+        int y = 2;
+
         ItemStack serverStack = testUtils.batchActions(() -> {
             game.getServer().getBroadcastChannel().send(Text.of("From a different thread!"), ChatTypes.SYSTEM);
             game.getServer().getBroadcastChannel().send(Text.of("Success: ", recievedMessage[0]), ChatTypes.SYSTEM);
@@ -106,6 +110,10 @@ public class SimpleMinecraftTester {
 
             Hotbar hotbar = (Hotbar) McTester.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
             hotbar.set(new SlotIndex(hotbar.getSelectedSlotIndex()), stack);
+
+            PlayerInventory playerInventory = (PlayerInventory) McTester.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(PlayerInventory.class));
+            playerInventory.getMainGrid().set(x, y, stack);
+
             return stack;
         });
 
@@ -115,12 +123,18 @@ public class SimpleMinecraftTester {
         // However, we don't want to rely on this happening at any particular point during the tick,
         // so we wait two ticks to guarantee that the update packets have been sent by the time
         // our code runs.
-        //testUtils.sleepTicks(2);
+        testUtils.sleepTicks(2);
 
-
+        PlayerInventory clientInventory = client.getClientInventory();
+        ItemStack mainGridStack = clientInventory.getMainGrid().getSlot(x, y).get().peek().get();
         ItemStack clientStack = client.getItemInHand(HandTypes.MAIN_HAND);
-        boolean eq = ItemStackComparators.ALL.compare(serverStack, clientStack) == 0;
-        game.getServer().getBroadcastChannel().send(Text.of("Stacks: " + serverStack + " " + clientStack + " " + eq), ChatTypes.SYSTEM);
+
+        this.assertStacksEqual(serverStack, clientStack);
+        this.assertStacksEqual(serverStack, mainGridStack);
+    }
+
+    private void assertStacksEqual(ItemStack serverStack, ItemStack clientStack) {
+        Assert.assertTrue("Itemstacks are not equal! Server: " + serverStack + " client " + clientStack, ItemStackComparators.ALL.compare(serverStack, clientStack) == 0);
     }
 
 }
