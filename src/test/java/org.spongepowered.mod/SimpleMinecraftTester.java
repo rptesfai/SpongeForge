@@ -27,7 +27,6 @@ package org.spongepowered.mod;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -42,21 +41,16 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.TestUtils;
-import org.spongepowered.mctester.internal.framework.Client;
+import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.junit.MinecraftRunnerOptions;
 
 @RunWith(MinecraftRunner.class)
-public class SimpleMinecraftTester {
-
-    private Game game;
-    private Client client;
-    private TestUtils testUtils;
+@MinecraftRunnerOptions(exitMinecraftOnFinish = false)
+public class SimpleMinecraftTester extends BaseTest {
 
     public SimpleMinecraftTester(TestUtils testUtils) {
-        this.testUtils = testUtils;
-        this.game = testUtils.getGame();
-        this.client = testUtils.getClient();
-
+        super(testUtils);
     }
 
     @Test
