@@ -100,6 +100,6 @@ public class CreeperTest extends BaseTest {
             }
         }, 2 * 20);
 
-        //throw new AssertionError("Dummy assertion failure!");
+        throw new AssertionError("Dummy assertion failure!");
     }
 }

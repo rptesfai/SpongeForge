@@ -48,7 +48,6 @@ import org.spongepowered.mctester.junit.ScreenshotOptions;
 import org.spongepowered.mctester.junit.UseSeparateWorld;
 import org.spongepowered.mctester.junit.WorldOptions;
 
-@Ignore
 @RunWith(MinecraftRunner.class)
 @WorldOptions(deleteWorldOnSuccess = true)
 public class SimpleMinecraftTester extends BaseTest {
