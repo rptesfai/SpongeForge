@@ -25,6 +25,7 @@
 package org.spongepowered.mod;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.spongepowered.api.data.type.HandTypes;
@@ -43,10 +44,13 @@ import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.junit.MinecraftRunner;
-import org.spongepowered.mctester.junit.MinecraftRunnerOptions;
+import org.spongepowered.mctester.junit.ScreenshotOptions;
+import org.spongepowered.mctester.junit.UseSeparateWorld;
+import org.spongepowered.mctester.junit.WorldOptions;
 
+@Ignore
 @RunWith(MinecraftRunner.class)
-@MinecraftRunnerOptions(exitMinecraftOnFinish = false)
+@WorldOptions(deleteWorldOnSuccess = true)
 public class SimpleMinecraftTester extends BaseTest {
 
     public SimpleMinecraftTester(TestUtils testUtils) {
@@ -54,6 +58,7 @@ public class SimpleMinecraftTester extends BaseTest {
     }
 
     @Test
+    @ScreenshotOptions(takeScreenshotOnSuccess = true, delayTicks = 100)
     public void helpHelp() {
         String message = "Hello, world!";
 
@@ -81,6 +86,8 @@ public class SimpleMinecraftTester extends BaseTest {
 
 
     @Test
+    @UseSeparateWorld
+    @WorldOptions(deleteWorldOnSuccess = true)
     public void chatTest() throws Throwable {
         final Text[] recievedMessage = new Text[1];
 

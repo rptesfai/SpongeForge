@@ -27,8 +27,6 @@ package org.spongepowered.mod;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -40,9 +38,7 @@ import org.spongepowered.api.entity.living.monster.Creeper;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.EventListener;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.item.ItemTypes;
@@ -53,10 +49,10 @@ import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.junit.MinecraftRunner;
-import org.spongepowered.mctester.junit.MinecraftRunnerOptions;
+import org.spongepowered.mctester.junit.WorldOptions;
 
 @RunWith(MinecraftRunner.class)
-@MinecraftRunnerOptions(exitMinecraftOnFinish = true)
+@WorldOptions(deleteWorldOnSuccess = true)
 public class CreeperTest extends BaseTest {
 
     public CreeperTest(TestUtils testUtils) {
@@ -68,7 +64,7 @@ public class CreeperTest extends BaseTest {
         Player player = this.testUtils.getThePlayer();
         player.offer(Keys.GAME_MODE, GameModes.CREATIVE);
 
-        Creeper creeper = (Creeper) player.getWorld().createEntity(EntityTypes.CREEPER, player.getPosition());
+        Creeper creeper = (Creeper) player.getWorld().createEntity(EntityTypes.CREEPER, player.getPosition().add(2, 0, 1));
         creeper.setCreator(player.getUniqueId());
 
 
@@ -81,6 +77,8 @@ public class CreeperTest extends BaseTest {
                 }
             }
         });
+
+        testUtils.listen(MoveEntityEvent.class, moveListener);
 
         player.getWorld().spawnEntity(creeper);
         ((Hotbar) player.getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class))).set(new SlotIndex(0), ItemStack.of(
@@ -101,5 +99,7 @@ public class CreeperTest extends BaseTest {
                 }
             }
         }, 2 * 20);
+
+        //throw new AssertionError("Dummy assertion failure!");
     }
 }
