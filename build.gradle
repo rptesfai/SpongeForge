@@ -13,7 +13,9 @@ buildscript {
             name = 'forge'
             url = 'http://files.minecraftforge.net/maven'
         }
-        mavenLocal()
+        maven {
+            url  "https://dl.bintray.com/aaron1011/McTester" 
+        }
     }
 
     dependencies {
@@ -22,9 +24,16 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
         classpath 'gradle.plugin.org.spongepowered:spongegradle:0.8.1'
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
-        classpath 'org.spongepowered:mctester:1.0-SNAPSHOT'
+        classpath 'org.spongepowered:mctester:0.2.0'
     }
 }
+
+repositories {
+    maven {
+        url  "https://dl.bintray.com/aaron1011/McTester" 
+    }
+}
+
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 ext.minecraftVersion = forgeBuild
@@ -149,9 +158,9 @@ uploadArchives {
 
 apply from: 'changelog.gradle'
 
-repositories {
-    mavenLocal()
-}
+//repositories {
+//    mavenLocal()
+//}
 /*
 dependencies {
     testCompile 'org.spongepowered:mctester:1.0-SNAPSHOT'
