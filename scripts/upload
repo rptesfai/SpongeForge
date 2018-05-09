@@ -6,5 +6,5 @@ export MCTESTER_GAMEDIR=/tmp/mctester/game
 mkdir -p /tmp/mctester/game/screenshots/fail
 wget https://imgur.com/download/K1F6TZV -O /tmp/mctester/game/screenshots/fail/satImage.png
 
-sudo npm install -g mctester-uploader
-mctesterupload
+npm install -g mctester-uploader
+$(npm bin)/mctesterupload
