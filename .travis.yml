@@ -11,7 +11,7 @@ git:
 before_install: scripts/travis-initialize-submodules
 
 install: ./gradlew setupDecompWorkspace
-script: xvfb-run --server-args="+extension RANDR" ./gradlew test
+script: xvfb-run --server-args="+extension RANDR" ./gradlew test --stacktrace
 after_failure: scripts/upload
 
 notifications:
