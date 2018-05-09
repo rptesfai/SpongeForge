@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 export MCTESTER_GAMEDIR=/tmp/mctester/game
-export MCTESTER_UPLOAD_URL=http://92f9a67e.ngrok.io/upload
+#export MCTESTER_UPLOAD_URL=http://92f9a67e.ngrok.io/upload
 
 
 mkdir -p /tmp/mctester/game/screenshots/fail
