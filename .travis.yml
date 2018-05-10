@@ -8,7 +8,11 @@ jdk:
 
 git:
   submodules: false
-before_install: scripts/travis-initialize-submodules
+before_install:
+  #- sudo add-apt-repository ppa:techsavvy8989/trusty-backport
+  #- sudo apt-get update
+  - curl -L "https://dl.bintray.com/aaron1011/McTester/Xvfb" --output - > /usr/bin/Xvfb 
+  - scripts/travis-initialize-submodules
 
 install: ./gradlew setupDecompWorkspace
 script: xvfb-run --server-args="+extension GLX +extension RANDR +extension RENDER -screen 0 1024x768x24" ./gradlew test --stacktrace
