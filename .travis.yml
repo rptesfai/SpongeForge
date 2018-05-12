@@ -33,3 +33,4 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+    - $TRAVIS_BUILD_DIR/.gradle/
