@@ -14,9 +14,6 @@ git:
 before_install:
   - docker pull aaron1011/xvfb-docker
   - docker run -d -v /tmp/.X11-unix:/tmp/.X11-unix aaron1011/xvfb-docker
-  #- sudo add-apt-repository ppa:techsavvy8989/trusty-backport
-  #- sudo apt-get update
-  #- sudo wget "https://dl.bintray.com/aaron1011/McTester/Xvfb" -O /usr/bin/Xvfb 
   - scripts/travis-initialize-submodules
 
 install: ./gradlew setupDecompWorkspace
