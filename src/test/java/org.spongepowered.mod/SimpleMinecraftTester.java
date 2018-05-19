@@ -29,6 +29,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.item.ItemTypes;
@@ -43,6 +44,7 @@ import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.internal.BaseTest;
+import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.ScreenshotOptions;
 import org.spongepowered.mctester.junit.UseSeparateWorld;
@@ -58,29 +60,41 @@ public class SimpleMinecraftTester extends BaseTest {
 
     @Test
     @ScreenshotOptions(takeScreenshotOnSuccess = true, delayTicks = 100)
-    public void helpHelp() {
+    public void helpHelp() throws Throwable {
         String message = "Hello, world!";
 
-        testUtils.listenOneShot(MessageChannelEvent.Chat.class, new EventListener<MessageChannelEvent.Chat>() {
+        testUtils.listenOneShot((Runnable) () -> {
+            client.sendMessage(message);
+        },
+                new StandaloneEventListener<MessageChannelEvent.Chat>() {
 
-            @Override
+                    @Override
+                    public Class<MessageChannelEvent.Chat> getEventClass() {
+                        return MessageChannelEvent.Chat.class;
+                    }
+
+                    @Override
             public void handle(MessageChannelEvent.Chat event) throws Exception {
                 Assert.assertEquals(message, event.getRawMessage().toPlain());
             }
         });
-        client.sendMessage(message);
     }
 
     @Test(expected = AssertionError.class)
-    public void deliberateFailure() {
-        testUtils.listenOneShot(MessageChannelEvent.Chat.class, new EventListener<MessageChannelEvent.Chat>() {
+    public void deliberateFailure() throws Throwable {
+        testUtils.listenOneShot(() -> { client.sendMessage("blah"); }, new StandaloneEventListener<MessageChannelEvent.Chat>() {
+
+            @Override
+            public Class<MessageChannelEvent.Chat> getEventClass() {
+                return MessageChannelEvent.Chat.class;
+            }
 
             @Override
             public void handle(MessageChannelEvent.Chat event) throws Exception {
                 Assert.assertEquals(1, 2);
             }
         });
-        client.sendMessage("blah");
+        ;
     }
 
 
@@ -90,14 +104,23 @@ public class SimpleMinecraftTester extends BaseTest {
     public void chatTest() throws Throwable {
         final Text[] recievedMessage = new Text[1];
 
-        testUtils.listenOneShot(MessageChannelEvent.Chat.class, new EventListener<MessageChannelEvent.Chat>() {
+        testUtils.listenOneShot(() -> {
+                    client.sendMessage("Hello, world!");
 
-            @Override
-            public void handle(MessageChannelEvent.Chat event) throws Exception {
-                recievedMessage[0] = event.getRawMessage();
-            }
-        });
-        client.sendMessage("Hello, world!");
+                },
+
+                new StandaloneEventListener<MessageChannelEvent.Chat>() {
+
+                    @Override
+                    public Class<MessageChannelEvent.Chat> getEventClass() {
+                        return MessageChannelEvent.Chat.class;
+                    }
+
+                    @Override
+                    public void handle(MessageChannelEvent.Chat event) throws Exception {
+                        recievedMessage[0] = event.getRawMessage();
+                    }
+                });
 
         int x = 2;
         int y = 2;

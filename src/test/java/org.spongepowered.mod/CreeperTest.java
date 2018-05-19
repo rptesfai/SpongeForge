@@ -57,6 +57,7 @@ import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.internal.BaseTest;
+import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.WorldOptions;
 
@@ -136,7 +137,12 @@ public class CreeperTest extends BaseTest {
         testUtils.waitForInventoryPropagation();
         this.client.lookAt(creeper[0]);
 
-        this.testUtils.listenTimeout(ChangeBlockEvent.Break.class, new EventListener<ChangeBlockEvent.Break>() {
+        this.testUtils.listenTimeout((Runnable) () -> { this.client.rightClick(); }, new StandaloneEventListener<ChangeBlockEvent.Break>() {
+
+            @Override
+            public Class<ChangeBlockEvent.Break> getEventClass() {
+                return ChangeBlockEvent.Break.class;
+            }
 
             @Override
             public void handle(ChangeBlockEvent.Break event) throws Exception {
@@ -147,8 +153,6 @@ public class CreeperTest extends BaseTest {
                 }
             }
         }, 2 * 20);
-
-        this.client.rightClick();
         //throw new AssertionError("Dummy assertion failure!");
     }
 }
