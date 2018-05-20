@@ -153,7 +153,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
-                SpongeLaunch.SUPERCLASS_TRANSFORMER
+                SpongeLaunch.SUPERCLASS_TRANSFORMER,
+                "org.spongepowered.mod.asm.transformer.EverythingPublicTransformer"
         };
     }
 

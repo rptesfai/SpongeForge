@@ -26,6 +26,7 @@ package org.spongepowered.mod;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -39,30 +40,24 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.monster.Creeper;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
-import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.WorldOptions;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RunWith(MinecraftRunner.class)
 @WorldOptions(deleteWorldOnSuccess = true)
@@ -74,7 +69,7 @@ public class CreeperTest extends BaseTest {
 
     @Test
     public void explodeCreeper() throws Throwable {
-        this.testUtils.batchActions(() -> {
+        this.testUtils.runOnMainThread(() -> {
             Player player = this.testUtils.getThePlayer();
             player.offer(Keys.GAME_MODE, GameModes.CREATIVE);
 
@@ -85,7 +80,7 @@ public class CreeperTest extends BaseTest {
         testUtils.waitForInventoryPropagation();
 
         // Look at the ground two blocks in the z direction
-        Vector3d targetPos = this.testUtils.batchActions(() -> { return CreeperTest.this.testUtils.getThePlayer().getLocation().getPosition().add(0, -1, 2); });
+        Vector3d targetPos = this.testUtils.runOnMainThread(() -> CreeperTest.this.testUtils.getThePlayer().getLocation().getPosition().add(0, -1, 2));
         client.lookAt(targetPos);
 
         final Creeper[] creeper = new Creeper[1];
@@ -94,7 +89,7 @@ public class CreeperTest extends BaseTest {
 
             @Override
             public void handle(SpawnEntityEvent event) throws Exception {
-                if (!event.getEntities().stream().anyMatch(e -> e.getType().equals(EntityTypes.CREEPER))) {
+                if (event.getEntities().stream().noneMatch(e -> e.getType().equals(EntityTypes.CREEPER))) {
                     return;
                 }
 
@@ -110,10 +105,9 @@ public class CreeperTest extends BaseTest {
 
             }
         });
-
         client.rightClick();
 
-        assertNotNull("Creeper did not spawn!", creeper[0]);
+        assertThat("Creeper did not spawn!", creeper[0], instanceOf(Creeper.class));
 
 
         EventListener<MoveEntityEvent> moveListener = this.testUtils.listen(MoveEntityEvent.class, new EventListener<MoveEntityEvent>() {
@@ -128,7 +122,7 @@ public class CreeperTest extends BaseTest {
 
         testUtils.listen(MoveEntityEvent.class, moveListener);
 
-        this.testUtils.batchActions(() -> {
+        this.testUtils.runOnMainThread(() -> {
 
             ((Hotbar) this.testUtils.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class))).setSelectedSlotIndex(1);
             this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.FLINT_AND_STEEL, 1));

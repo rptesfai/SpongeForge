@@ -25,12 +25,9 @@
 package org.spongepowered.mod;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -125,7 +122,7 @@ public class SimpleMinecraftTester extends BaseTest {
         int x = 2;
         int y = 2;
 
-        ItemStack serverStack = testUtils.batchActions(() -> {
+        ItemStack serverStack = testUtils.runOnMainThread(() -> {
             game.getServer().getBroadcastChannel().send(Text.of("From a different thread!"), ChatTypes.SYSTEM);
             game.getServer().getBroadcastChannel().send(Text.of("Success: ", recievedMessage[0]), ChatTypes.SYSTEM);
 
