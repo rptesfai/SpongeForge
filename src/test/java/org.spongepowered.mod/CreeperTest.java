@@ -85,42 +85,33 @@ public class CreeperTest extends BaseTest {
 
         final Creeper[] creeper = new Creeper[1];
 
-        this.testUtils.listen(SpawnEntityEvent.class, new EventListener<SpawnEntityEvent>() {
-
-            @Override
-            public void handle(SpawnEntityEvent event) throws Exception {
-                if (event.getEntities().stream().noneMatch(e -> e.getType().equals(EntityTypes.CREEPER))) {
-                    return;
-                }
-
-                assertThat(event.getEntities(), hasSize(1));
-                creeper[0] = (Creeper) event.getEntities().get(0);
-
-                assertTrue("Cause doesn't contain player: " + event.getCause(), event.getCause().contains(CreeperTest.this.testUtils.getThePlayer()));
-                assertTrue("Cause doesn't contain correct item: " + event.getCause(),
-                        event.getCause().getContext().get(EventContextKeys.USED_ITEM).map(i -> i.getType().equals(ItemTypes.SPAWN_EGG)).orElse(false)
-                );
-
-                Sponge.getEventManager().unregisterListeners(this);
-
+        this.testUtils.listen(new StandaloneEventListener<>(SpawnEntityEvent.class, (SpawnEntityEvent event) -> {
+            if (event.getEntities().stream().noneMatch(e -> e.getType().equals(EntityTypes.CREEPER))) {
+                return;
             }
-        });
+
+            assertThat(event.getEntities(), hasSize(1));
+            creeper[0] = (Creeper) event.getEntities().get(0);
+
+            assertTrue("Cause doesn't contain player: " + event.getCause(), event.getCause().contains(CreeperTest.this.testUtils.getThePlayer()));
+            assertTrue("Cause doesn't contain correct item: " + event.getCause(),
+                    event.getCause().getContext().get(EventContextKeys.USED_ITEM).map(i -> i.getType().equals(ItemTypes.SPAWN_EGG)).orElse(false)
+            );
+
+            Sponge.getEventManager().unregisterListeners(this);
+
+        }));
         client.rightClick();
 
         assertThat("Creeper did not spawn!", creeper[0], instanceOf(Creeper.class));
 
 
-        EventListener<MoveEntityEvent> moveListener = this.testUtils.listen(MoveEntityEvent.class, new EventListener<MoveEntityEvent>() {
+        EventListener<MoveEntityEvent> moveListener = this.testUtils.listen(new StandaloneEventListener<>(MoveEntityEvent.class, (MoveEntityEvent event) -> {
 
-            @Override
-            public void handle(MoveEntityEvent event) throws Exception {
-                if (event.getTargetEntity().getUniqueId() == creeper[0].getUniqueId()) {
-                    event.setCancelled(true);
-                }
+            if (event.getTargetEntity().getUniqueId() == creeper[0].getUniqueId()) {
+                event.setCancelled(true);
             }
-        });
-
-        testUtils.listen(MoveEntityEvent.class, moveListener);
+        }));
 
         this.testUtils.runOnMainThread(() -> {
 
@@ -131,22 +122,15 @@ public class CreeperTest extends BaseTest {
         testUtils.waitForInventoryPropagation();
         this.client.lookAt(creeper[0]);
 
-        this.testUtils.listenTimeout((Runnable) () -> { this.client.rightClick(); }, new StandaloneEventListener<ChangeBlockEvent.Break>() {
+        this.testUtils.listenTimeout(() -> this.client.rightClick(), new StandaloneEventListener<>(ChangeBlockEvent.Break.class, (ChangeBlockEvent.Break event) -> {
 
-            @Override
-            public Class<ChangeBlockEvent.Break> getEventClass() {
-                return ChangeBlockEvent.Break.class;
+            assertThat(event.getCause().getContext().get(EventContextKeys.OWNER).get().getUniqueId(),
+                    equalTo(CreeperTest.this.testUtils.getThePlayer().getUniqueId()));
+
+            for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+                assertThat(transaction.getFinal().getState().getType(), equalTo(BlockTypes.AIR));
             }
-
-            @Override
-            public void handle(ChangeBlockEvent.Break event) throws Exception {
-                assertThat(event.getCause().getContext().get(EventContextKeys.OWNER).get().getUniqueId(), equalTo(CreeperTest.this.testUtils.getThePlayer().getUniqueId()));
-
-                for (Transaction<BlockSnapshot> transaction: event.getTransactions()) {
-                    assertThat(transaction.getFinal().getState().getType(), equalTo(BlockTypes.AIR));
-                }
-            }
-        }, 2 * 20);
+        }), 2 * 20);
         //throw new AssertionError("Dummy assertion failure!");
     }
 }

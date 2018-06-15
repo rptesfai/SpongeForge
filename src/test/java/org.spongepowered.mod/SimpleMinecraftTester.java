@@ -37,6 +37,7 @@ import org.spongepowered.api.item.inventory.entity.PlayerInventory;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.TestUtils;
@@ -56,42 +57,21 @@ public class SimpleMinecraftTester extends BaseTest {
     }
 
     @Test
-    @ScreenshotOptions(takeScreenshotOnSuccess = true, delayTicks = 100)
+    @ScreenshotOptions(takeScreenshotOnSuccess = true)
     public void helpHelp() throws Throwable {
         String message = "Hello, world!";
 
-        testUtils.listenOneShot((Runnable) () -> {
-            client.sendMessage(message);
-        },
-                new StandaloneEventListener<MessageChannelEvent.Chat>() {
-
-                    @Override
-                    public Class<MessageChannelEvent.Chat> getEventClass() {
-                        return MessageChannelEvent.Chat.class;
-                    }
-
-                    @Override
-            public void handle(MessageChannelEvent.Chat event) throws Exception {
-                Assert.assertEquals(message, event.getRawMessage().toPlain());
-            }
-        });
+        testUtils.listenOneShot(() -> client.sendMessage(message),
+                new StandaloneEventListener<>(MessageChannelEvent.Chat.class, (MessageChannelEvent.Chat event) -> {
+                    Assert.assertEquals(message, event.getRawMessage().toPlain());
+                }));
     }
 
     @Test(expected = AssertionError.class)
     public void deliberateFailure() throws Throwable {
-        testUtils.listenOneShot(() -> { client.sendMessage("blah"); }, new StandaloneEventListener<MessageChannelEvent.Chat>() {
-
-            @Override
-            public Class<MessageChannelEvent.Chat> getEventClass() {
-                return MessageChannelEvent.Chat.class;
-            }
-
-            @Override
-            public void handle(MessageChannelEvent.Chat event) throws Exception {
-                Assert.assertEquals(1, 2);
-            }
-        });
-        ;
+        testUtils.listenOneShot(() -> { client.sendMessage("blah"); }, new StandaloneEventListener<>(MessageChannelEvent.Chat.class, (MessageChannelEvent.Chat event) -> {
+            Assert.assertEquals(1, 2);
+        }));
     }
 
 
@@ -106,18 +86,9 @@ public class SimpleMinecraftTester extends BaseTest {
 
                 },
 
-                new StandaloneEventListener<MessageChannelEvent.Chat>() {
-
-                    @Override
-                    public Class<MessageChannelEvent.Chat> getEventClass() {
-                        return MessageChannelEvent.Chat.class;
-                    }
-
-                    @Override
-                    public void handle(MessageChannelEvent.Chat event) throws Exception {
-                        recievedMessage[0] = event.getRawMessage();
-                    }
-                });
+                new StandaloneEventListener<MessageChannelEvent.Chat>(MessageChannelEvent.Chat.class, (MessageChannelEvent.Chat event) -> {
+                    recievedMessage[0] = event.getRawMessage();
+                }));
 
         int x = 2;
         int y = 2;

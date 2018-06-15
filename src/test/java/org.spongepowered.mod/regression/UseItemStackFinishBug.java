@@ -70,18 +70,12 @@ public class UseItemStackFinishBug extends BaseTest {
 
         this.testUtils.waitForInventoryPropagation();
 
-        this.testUtils.listenTimeout(() -> this.client.holdRightClick(true), new StandaloneEventListener<UseItemStackEvent.Finish>() {
+        // ItemFood takes 32 ticks to finish, wait for 100 just to be sure.
+        this.testUtils.listenTimeout(() -> this.client.holdRightClick(true),
+                new StandaloneEventListener<>(UseItemStackEvent.Finish.class,
+                        (UseItemStackEvent.Finish event) -> UseItemStackFinishBug.this.testUtils.assertStacksEqual(stack, event.getItemStackInUse().createStack())),
+                100);
 
-            @Override
-            public Class<UseItemStackEvent.Finish> getEventClass() {
-                return UseItemStackEvent.Finish.class;
-            }
-
-            @Override
-            public void handle(UseItemStackEvent.Finish event) throws Exception {
-                UseItemStackFinishBug.this.testUtils.assertStacksEqual(stack, event.getItemStackInUse().createStack());
-            }
-        }, 40); // ItemFood takes 32 ticks to finish, wait for 40 just to be sure.
 
         UseItemStackFinishBug.this.client.holdRightClick(false);
     }
