@@ -143,18 +143,16 @@ public class SimpleMinecraftTester extends BaseTest {
         // However, we don't want to rely on this happening at any particular point during the tick,
         // so we wait two ticks to guarantee that the update packets have been sent by the time
         // our code runs.
-        testUtils.sleepTicks(2);
+        //testUtils.sleepTicks(2);
+        testUtils.waitForInventoryPropagation();
 
         PlayerInventory clientInventory = client.getClientInventory();
         ItemStack mainGridStack = clientInventory.getMainGrid().getSlot(x, y).get().peek().get();
         ItemStack clientStack = client.getItemInHand(HandTypes.MAIN_HAND);
 
-        this.assertStacksEqual(serverStack, clientStack);
-        this.assertStacksEqual(serverStack, mainGridStack);
-    }
+        this.testUtils.assertStacksEqual(serverStack, clientStack);
+        this.testUtils.assertStacksEqual(serverStack, mainGridStack);
 
-    private void assertStacksEqual(ItemStack serverStack, ItemStack clientStack) {
-        Assert.assertTrue("Itemstacks are not equal! Server: " + serverStack + " client " + clientStack, ItemStackComparators.ALL.compare(serverStack, clientStack) == 0);
     }
 
 }
