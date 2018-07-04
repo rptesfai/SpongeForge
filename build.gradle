@@ -13,9 +13,7 @@ buildscript {
             name = 'forge'
             url = 'http://files.minecraftforge.net/maven'
         }
-        maven {
-            url  "https://dl.bintray.com/aaron1011/McTester"
-        }
+        maven { url 'https://jitpack.io' }
         mavenLocal()
     }
 
@@ -25,14 +23,12 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
         classpath 'gradle.plugin.org.spongepowered:spongegradle:0.8.1'
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
-        classpath 'org.spongepowered:mctester:0.4.0-SNAPSHOT'
+        classpath 'com.github.Aaron1011:McTester:-SNAPSHOT'
     }
 }
 
 repositories {
-    maven {
-        url  "https://dl.bintray.com/aaron1011/McTester"
-    }
+    maven { url 'https://jitpack.io' }
     mavenLocal()
 }
 
@@ -164,5 +160,5 @@ apply from: 'changelog.gradle'
 //}
 
 dependencies {
-    testCompile 'org.spongepowered:mctester:0.4.0-SNAPSHOT'
+    testCompile 'com.github.Aaron1011:McTester:-SNAPSHOT'
 }
