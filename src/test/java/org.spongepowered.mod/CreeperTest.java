@@ -53,10 +53,10 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
-import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.junit.TestUtils;
 import org.spongepowered.mctester.junit.WorldOptions;
 
 @RunWith(MinecraftRunner.class)

@@ -44,8 +44,8 @@ import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.McTester;
-import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.junit.TestUtils;
 import org.spongepowered.mod.RegressionTest;
 
 import java.util.Optional;

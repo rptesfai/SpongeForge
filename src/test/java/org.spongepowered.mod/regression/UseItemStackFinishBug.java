@@ -24,16 +24,10 @@
  */
 package org.spongepowered.mod.regression;
 
-import com.google.common.collect.Lists;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.effect.potion.PotionEffect;
-import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -42,9 +36,9 @@ import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.McTester;
-import org.spongepowered.mctester.internal.TestUtils;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.junit.TestUtils;
 import org.spongepowered.mod.RegressionTest;
 
 @RegressionTest(ghIssue = "https://github.com/SpongePowered/SpongeCommon/issues/1923")
