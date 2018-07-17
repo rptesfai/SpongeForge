@@ -1,8 +1,8 @@
 package org.spongepowered.mod
 
-import junit.framework.Assert.assertTrue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.spongepowered.api.Sponge
@@ -56,8 +56,7 @@ class CreeperTestKotlin(testUtils: TestUtils): BaseTest(testUtils) {
         val creeper = arrayOfNulls<Creeper>(1)
 
         this.testUtils.listen<SpawnEntityEvent>(StandaloneEventListener<SpawnEntityEvent>(SpawnEntityEvent::class.java,
-                {
-                    event:SpawnEntityEvent->
+                { event:SpawnEntityEvent->
                     if (event.getEntities().stream().noneMatch({ e -> e.getType() == EntityTypes.CREEPER }))
                         return@StandaloneEventListener
 
