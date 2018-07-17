@@ -30,7 +30,7 @@ import org.spongepowered.mctester.internal.BaseTest
 import org.spongepowered.mctester.internal.coroutine.CoroutineTestUtils
 import org.spongepowered.mctester.internal.event.StandaloneEventListener
 import org.spongepowered.mctester.junit.CoroutineTest
-import org.spongepowered.mctester.junit.MinecraftRunner
+import org.spongepowered.mctester.api.junit.MinecraftRunner
 import org.spongepowered.mctester.junit.TestUtils
 import java.util.*
 
@@ -99,6 +99,12 @@ class CreeperTestKotlin(testUtils: TestUtils): BaseTest(testUtils) {
             {
                 assertThat<BlockType>(transaction.getFinal().getState().getType(), equalTo<BlockType>(BlockTypes.AIR))
             } }), 2 * 20)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    @CoroutineTest
+    suspend fun expectedFailure() {
+        throw IllegalStateException("This should be caught!")
     }
 
 }

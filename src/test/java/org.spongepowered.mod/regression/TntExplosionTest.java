@@ -40,9 +40,8 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Identifiable;
 import org.spongepowered.mctester.internal.BaseTest;
-import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
-import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
 
 import java.util.Optional;
@@ -58,10 +57,10 @@ public class TntExplosionTest extends BaseTest {
     @Test
     public void testChainTnt() throws Throwable {
         Vector3d targetPos = this.testUtils.runOnMainThread(() -> {
-            McTester.getThePlayer().offer(Keys.GAME_MODE, GameModes.CREATIVE);
-            McTester.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.TNT, 1));
+            this.testUtils.getThePlayer().offer(Keys.GAME_MODE, GameModes.CREATIVE);
+            this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.TNT, 1));
 
-            return McTester.getThePlayer().getLocation().add(0, -1, 1).getPosition();
+            return this.testUtils.getThePlayer().getLocation().add(0, -1, 1).getPosition();
         });
 
         this.testUtils.waitForInventoryPropagation();
@@ -76,8 +75,8 @@ public class TntExplosionTest extends BaseTest {
         this.client.rightClick();
 
         UUID playerId = this.testUtils.runOnMainThread(() -> {
-            McTester.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.FLINT_AND_STEEL, 1));
-            return McTester.getThePlayer().getUniqueId();
+            this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.FLINT_AND_STEEL, 1));
+            return this.testUtils.getThePlayer().getUniqueId();
         });
 
         this.testUtils.waitForInventoryPropagation();

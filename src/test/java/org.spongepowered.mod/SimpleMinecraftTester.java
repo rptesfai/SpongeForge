@@ -27,6 +27,7 @@ package org.spongepowered.mod;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.item.ItemTypes;
@@ -37,14 +38,13 @@ import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
-import org.spongepowered.mctester.junit.MinecraftRunner;
-import org.spongepowered.mctester.junit.ScreenshotOptions;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
+import org.spongepowered.mctester.api.ScreenshotOptions;
 import org.spongepowered.mctester.junit.TestUtils;
-import org.spongepowered.mctester.junit.UseSeparateWorld;
-import org.spongepowered.mctester.junit.WorldOptions;
+import org.spongepowered.mctester.api.UseSeparateWorld;
+import org.spongepowered.mctester.api.WorldOptions;
 
 @RunWith(MinecraftRunner.class)
 @WorldOptions(deleteWorldOnSuccess = true)
@@ -92,15 +92,15 @@ public class SimpleMinecraftTester extends BaseTest {
         int y = 2;
 
         ItemStack serverStack = testUtils.runOnMainThread(() -> {
-            game.getServer().getBroadcastChannel().send(Text.of("From a different thread!"), ChatTypes.SYSTEM);
-            game.getServer().getBroadcastChannel().send(Text.of("Success: ", recievedMessage[0]), ChatTypes.SYSTEM);
+            Sponge.getServer().getBroadcastChannel().send(Text.of("From a different thread!"), ChatTypes.SYSTEM);
+            Sponge.getServer().getBroadcastChannel().send(Text.of("Success: ", recievedMessage[0]), ChatTypes.SYSTEM);
 
             ItemStack stack = ItemStack.of(ItemTypes.GOLD_INGOT, 5);
 
-            Hotbar hotbar = (Hotbar) McTester.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
+            Hotbar hotbar = (Hotbar) this.testUtils.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
             hotbar.set(new SlotIndex(hotbar.getSelectedSlotIndex()), stack);
 
-            PlayerInventory playerInventory = (PlayerInventory) McTester.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(PlayerInventory.class));
+            PlayerInventory playerInventory = (PlayerInventory) this.testUtils.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(PlayerInventory.class));
             playerInventory.getMainGrid().set(x, y, stack);
 
             return stack;

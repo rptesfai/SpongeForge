@@ -43,8 +43,7 @@ import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.mctester.internal.BaseTest;
-import org.spongepowered.mctester.internal.McTester;
-import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
 import org.spongepowered.mod.RegressionTest;
 
@@ -75,10 +74,10 @@ public class CrossDimensionCommandBlock extends BaseTest  {
 
             World world = Sponge.getServer().loadWorld(worldProperties).get();
 
-            McTester.getThePlayer().setLocation(world.getSpawnLocation());
-            McTester.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.COMMAND_BLOCK, 1));
+            this.testUtils.getThePlayer().setLocation(world.getSpawnLocation());
+            this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.COMMAND_BLOCK, 1));
 
-            Location<World> target = McTester.getThePlayer().getLocation().add(0, 1, 1);
+            Location<World> target = this.testUtils.getThePlayer().getLocation().add(0, 1, 1);
             return target;
         });
 

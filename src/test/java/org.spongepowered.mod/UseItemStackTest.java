@@ -49,9 +49,8 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.mctester.internal.BaseTest;
-import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
-import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
 
 import java.util.List;
@@ -71,8 +70,8 @@ public class UseItemStackTest extends BaseTest {
         ItemStack stack = ItemStack.of(ItemTypes.GOLDEN_APPLE, 1);
 
         this.testUtils.runOnMainThread(() -> {
-            McTester.getThePlayer().offer(Keys.GAME_MODE, GameModes.SURVIVAL);
-            McTester.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, stack);
+            this.testUtils.getThePlayer().offer(Keys.GAME_MODE, GameModes.SURVIVAL);
+            this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, stack);
         });
 
         this.testUtils.waitForInventoryPropagation();

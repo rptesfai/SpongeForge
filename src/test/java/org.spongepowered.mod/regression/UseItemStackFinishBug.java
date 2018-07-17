@@ -35,9 +35,8 @@ import org.spongepowered.api.item.inventory.entity.Hotbar;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.mctester.internal.BaseTest;
-import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
-import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
 import org.spongepowered.mod.RegressionTest;
 
@@ -55,9 +54,9 @@ public class UseItemStackFinishBug extends BaseTest {
         ItemStack stack = ItemStack.of(ItemTypes.GOLDEN_APPLE, 1);
 
         this.testUtils.runOnMainThread(() -> {
-            McTester.getThePlayer().offer(Keys.GAME_MODE, GameModes.SURVIVAL);
+            this.testUtils.getThePlayer().offer(Keys.GAME_MODE, GameModes.SURVIVAL);
 
-            Hotbar hotbar = McTester.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
+            Hotbar hotbar = this.testUtils.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
             hotbar.set(new SlotIndex(hotbar.getSelectedSlotIndex()), stack);
         });
 

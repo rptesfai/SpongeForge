@@ -35,9 +35,8 @@ import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.mctester.internal.BaseTest;
-import org.spongepowered.mctester.internal.McTester;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
-import org.spongepowered.mctester.junit.MinecraftRunner;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
 import org.spongepowered.mod.RegressionTest;
 
@@ -56,8 +55,8 @@ public class BreakBlockUsedItem extends BaseTest {
         ItemStack stack = ItemStack.of(ItemTypes.IRON_INGOT, 1);
 
         Vector3d position = this.testUtils.runOnMainThread(() -> {
-            McTester.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, stack);
-            return McTester.getThePlayer().getPosition().add(0, -1, 1);
+            this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, stack);
+            return this.testUtils.getThePlayer().getPosition().add(0, -1, 1);
         });
 
         // Look at the ground in front of us
