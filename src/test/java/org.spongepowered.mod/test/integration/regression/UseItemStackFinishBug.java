@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.regression;
+package org.spongepowered.mod.test.integration.regression;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
-import org.spongepowered.mod.RegressionTest;
+import org.spongepowered.mod.test.integration.RegressionTest;
 
 @RegressionTest(ghIssue = "https://github.com/SpongePowered/SpongeCommon/issues/1923")
 @RunWith(MinecraftRunner.class)

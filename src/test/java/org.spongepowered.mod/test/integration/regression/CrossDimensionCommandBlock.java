@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.regression;
+package org.spongepowered.mod.test.integration.regression;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -45,7 +45,7 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
-import org.spongepowered.mod.RegressionTest;
+import org.spongepowered.mod.test.integration.RegressionTest;
 
 import java.util.Optional;
 
