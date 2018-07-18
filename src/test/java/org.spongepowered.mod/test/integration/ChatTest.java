@@ -48,9 +48,9 @@ import org.spongepowered.mctester.api.WorldOptions;
 
 @RunWith(MinecraftRunner.class)
 @WorldOptions(deleteWorldOnSuccess = true)
-public class SimpleMinecraftTester extends BaseTest {
+public class ChatTest extends BaseTest {
 
-    public SimpleMinecraftTester(TestUtils testUtils) {
+    public ChatTest(TestUtils testUtils) {
         super(testUtils);
     }
 
