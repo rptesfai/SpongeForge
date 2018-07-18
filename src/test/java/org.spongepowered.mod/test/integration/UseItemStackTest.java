@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.item.Item;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.spongepowered.api.data.key.Keys;
@@ -122,6 +123,7 @@ public class UseItemStackTest extends BaseTest {
     }
 
     @Test
+    @Ignore("This test is too flaky to leave enabled - the inherent raciness of cancelling the usage leads to spurious failures")
     public void testClientStopsUsing() throws Throwable {
         //Thread.sleep(5000);
         ItemStack stack = this.setupItemStack();
