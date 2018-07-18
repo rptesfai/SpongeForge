@@ -49,6 +49,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.entity.explosive.PrimeExplosiveEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
@@ -122,15 +123,39 @@ public class CreeperTest extends BaseTest {
         testUtils.waitForInventoryPropagation();
         this.client.lookAt(creeper[0]);
 
-        this.testUtils.listenTimeout(() -> this.client.rightClick(), new StandaloneEventListener<>(ChangeBlockEvent.Break.class, (ChangeBlockEvent.Break event) -> {
+        final int[] fuseDuration = new int[1];
 
-            assertThat(event.getCause().getContext().get(EventContextKeys.OWNER).get().getUniqueId(),
-                    equalTo(CreeperTest.this.testUtils.getThePlayer().getUniqueId()));
-
-            for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-                assertThat(transaction.getFinal().getState().getType(), equalTo(BlockTypes.AIR));
+        this.testUtils.listenOneShot(() -> {
+            try {
+                this.client.rightClick();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
             }
-        }), 2 * 20);
+        }, new StandaloneEventListener<>(PrimeExplosiveEvent.Pre.class, (PrimeExplosiveEvent.Pre primeEvent) -> {
+            assertThat(primeEvent.getTargetEntity(), equalTo(creeper[0]));
+            fuseDuration[0] = primeEvent.getTargetEntity().get(Keys.FUSE_DURATION).get();
+
+
+        }));
+
+        // We should expect blokcs to break once the duration is up.
+        try {
+            this.testUtils.listenTimeout(() -> this.client.rightClick(),
+                    new StandaloneEventListener<>(ChangeBlockEvent.Break.class, (ChangeBlockEvent.Break event) -> {
+
+                        assertThat(event.getCause().getContext().get(EventContextKeys.OWNER).get().getUniqueId(),
+                                equalTo(CreeperTest.this.testUtils.getThePlayer().getUniqueId()));
+
+                        for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+                            assertThat(transaction.getFinal().getState().getType(), equalTo(BlockTypes.AIR));
+                        }
+                    }), fuseDuration[0]);
+
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+
+
         //throw new AssertionError("Dummy assertion failure!");
     }
 }

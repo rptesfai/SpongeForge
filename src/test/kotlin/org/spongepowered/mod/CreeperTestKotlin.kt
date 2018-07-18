@@ -13,14 +13,17 @@ import org.spongepowered.api.data.type.HandTypes
 import org.spongepowered.api.entity.Entity
 import org.spongepowered.api.entity.EntityType
 import org.spongepowered.api.entity.EntityTypes
+import org.spongepowered.api.entity.explosive.FusedExplosive
 import org.spongepowered.api.entity.living.monster.Creeper
 import org.spongepowered.api.entity.living.player.User
 import org.spongepowered.api.entity.living.player.gamemode.GameMode
 import org.spongepowered.api.entity.living.player.gamemode.GameModes
+import org.spongepowered.api.event.EventListener
 import org.spongepowered.api.event.block.ChangeBlockEvent
 import org.spongepowered.api.event.cause.EventContextKeys
 import org.spongepowered.api.event.entity.MoveEntityEvent
 import org.spongepowered.api.event.entity.SpawnEntityEvent
+import org.spongepowered.api.event.entity.explosive.PrimeExplosiveEvent
 import org.spongepowered.api.item.ItemTypes
 import org.spongepowered.api.item.inventory.Inventory
 import org.spongepowered.api.item.inventory.ItemStack
@@ -56,9 +59,9 @@ class CreeperTestKotlin(testUtils: TestUtils): BaseTest(testUtils) {
         val creeper = arrayOfNulls<Creeper>(1)
 
         this.testUtils.listen<SpawnEntityEvent>(StandaloneEventListener<SpawnEntityEvent>(SpawnEntityEvent::class.java,
-                { event:SpawnEntityEvent->
+                EventListener<SpawnEntityEvent> { event:SpawnEntityEvent->
                     if (event.getEntities().stream().noneMatch({ e -> e.getType() == EntityTypes.CREEPER }))
-                        return@StandaloneEventListener
+                        return@EventListener
 
                     assertThat<List<Entity>>(event.getEntities(), hasSize<Entity>(1))
                     creeper[0] = event.getEntities().get(0) as Creeper
@@ -76,12 +79,13 @@ class CreeperTestKotlin(testUtils: TestUtils): BaseTest(testUtils) {
 
         assertThat<Creeper>("Creeper did not spawn!", creeper[0], instanceOf<Creeper>(Creeper::class.java))
 
-        val moveListener = this.testUtils.listen<MoveEntityEvent>(StandaloneEventListener<MoveEntityEvent>(MoveEntityEvent::class.java, { event:MoveEntityEvent->
+        this.testUtils.listen<MoveEntityEvent>(StandaloneEventListener<MoveEntityEvent>(MoveEntityEvent::class.java, EventListener { event:MoveEntityEvent->
 
             if (event.getTargetEntity().getUniqueId() === creeper[0]!!.getUniqueId())
             {
                 event.setCancelled(true)
-            } }))
+            }
+        }))
 
 
         this.testUtils.thePlayer.getInventory().query<Hotbar>(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar::class.java)).selectedSlotIndex = 1
@@ -90,15 +94,38 @@ class CreeperTestKotlin(testUtils: TestUtils): BaseTest(testUtils) {
         CoroutineTestUtils.waitForInventoryPropagation();
         this.client.lookAtSuspend(creeper[0]!!)
 
-        this.testUtils.listenTimeOutSuspend(suspend { this.client.rightClickSuspend() }, StandaloneEventListener<ChangeBlockEvent.Break>(ChangeBlockEvent.Break::class.java, { event:ChangeBlockEvent.Break->
+        var fuseDuration: Int? = null
 
-            assertThat<UUID>(event.getCause().getContext().get<User>(EventContextKeys.OWNER).get().getUniqueId(),
-                    equalTo<UUID>(this.testUtils.thePlayer.getUniqueId()))
+        this.testUtils.listenOneShotSuspend({
+            try {
+                this.client.rightClickSuspend()
+            } catch (e: Throwable) {
+                throw RuntimeException(e)
+            }
+        }, StandaloneEventListener<PrimeExplosiveEvent.Pre>(PrimeExplosiveEvent.Pre::class.java) { primeEvent: PrimeExplosiveEvent.Pre ->
+            assertThat<FusedExplosive>(primeEvent.targetEntity, equalTo<FusedExplosive>(creeper[0]))
+            fuseDuration = primeEvent.targetEntity.get(Keys.FUSE_DURATION).get()
 
-            for (transaction in event.getTransactions())
-            {
-                assertThat<BlockType>(transaction.getFinal().getState().getType(), equalTo<BlockType>(BlockTypes.AIR))
-            } }), 2 * 20)
+
+        })
+
+        // We should expect blokcs to break once the duration is up.
+        try {
+            this.testUtils.listenTimeOutSuspend<ChangeBlockEvent.Break>({ this.client.rightClickSuspend() },
+                    StandaloneEventListener<ChangeBlockEvent.Break>(ChangeBlockEvent.Break::class.java) { event: ChangeBlockEvent.Break ->
+
+                        assertThat(event.cause.context.get(EventContextKeys.OWNER).get().uniqueId,
+                                equalTo(this.testUtils.thePlayer.getUniqueId()))
+
+                        for (transaction in event.transactions) {
+                            assertThat(transaction.final.state.type, equalTo(BlockTypes.AIR))
+                        }
+                    }, fuseDuration!!)
+
+        } catch (e: Throwable) {
+            throw RuntimeException(e)
+        }
+
     }
 
     @Test(expected = IllegalStateException::class)
