@@ -55,7 +55,7 @@ public class TntExplosionTest extends BaseTest {
     }
 
     @Test
-    public void testChainTnt() throws Throwable {
+    public void testTnt() throws Throwable {
         Vector3d targetPos = this.testUtils.runOnMainThread(() -> {
             this.testUtils.getThePlayer().offer(Keys.GAME_MODE, GameModes.CREATIVE);
             this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.TNT, 1));
@@ -81,21 +81,13 @@ public class TntExplosionTest extends BaseTest {
 
         this.testUtils.waitForInventoryPropagation();
 
-        boolean receivedFirst = false;
-        boolean recievedSecond = false;
-
         this.testUtils.listen(new StandaloneEventListener<>(ExplosionEvent.Detonate.class, (event) -> {
             if (!event.getExplosion().getSourceExplosive().map(e -> e instanceof PrimedTNT).orElse(false)) {
                 return;
             }
 
-            PrimedTNT source = (PrimedTNT) event.getExplosion().getSourceExplosive().get();
             Assert.assertThat("Unexpected explosion owner UUID", event.getCause().getContext().get(EventContextKeys.OWNER).map(Identifiable::getUniqueId), Matchers.equalTo(Optional
                     .of(playerId))) ;
-
-            /*if (!receivedFirst) {
-                Assert.assertThat("Unexpected igniter" event.getCause().getContext().get(EventContextKeys.IGNITER).map(Identifiable::getUniqueId), Matchers.equalTo(Optional.of(playerId)));
-            }*/
 
 
         }));
