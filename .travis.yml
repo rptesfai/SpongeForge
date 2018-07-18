@@ -12,8 +12,7 @@ jdk:
 git:
   submodules: false
 before_install:
-  - docker pull aaron1011/xvfb-docker
-  - docker run -d -v /tmp/.X11-unix:/tmp/.X11-unix aaron1011/xvfb-docker
+  - scripts/run-xvfb
   - scripts/travis-initialize-submodules
 
 install: ./gradlew setupDecompWorkspace
