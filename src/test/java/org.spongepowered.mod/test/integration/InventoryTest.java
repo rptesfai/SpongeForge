@@ -38,12 +38,11 @@ public class InventoryTest extends BaseTest {
         });
 
 
-        // We sleep two ticks to guarantee that the client has been updated.
+        // We sleep to guarantee that the client has been updated.
         // During the next tick, the server will send our inventory changes to the client.
         // However, we don't want to rely on this happening at any particular point during the tick,
         // so we wait two ticks to guarantee that the update packets have been sent by the time
         // our code runs.
-        //testUtils.sleepTicks(2);
         testUtils.waitForInventoryPropagation();
 
         PlayerInventory clientInventory = client.getClientInventory();
