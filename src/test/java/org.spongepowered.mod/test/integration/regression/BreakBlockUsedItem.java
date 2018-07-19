@@ -58,6 +58,7 @@ public class BreakBlockUsedItem extends BaseTest {
             this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, stack);
             return this.testUtils.getThePlayer().getPosition().add(0, -1, 1);
         });
+        this.testUtils.waitForInventoryPropagation();
 
         // Look at the ground in front of us
         this.client.lookAt(position);
