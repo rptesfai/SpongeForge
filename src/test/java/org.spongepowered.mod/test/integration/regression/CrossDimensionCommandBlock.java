@@ -26,6 +26,7 @@ package org.spongepowered.mod.test.integration.regression;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import com.flowpowered.math.vector.Vector3d;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +61,7 @@ public class CrossDimensionCommandBlock extends BaseTest  {
     @Test
     public void testUseCommandBlock() throws Throwable {
 
-        Location<World> targetLocation = this.testUtils.runOnMainThread(() -> {
+        Location<World> targetPosition = this.testUtils.runOnMainThread(() -> {
 
             //Sponge.getCommandManager().process(Sponge.getServer().getConsole(), "op " + McTester.getThePlayer().getName());
 
@@ -80,12 +81,12 @@ public class CrossDimensionCommandBlock extends BaseTest  {
             Location<World> target = this.testUtils.getThePlayer().getLocation().add(0, 1, 1);
             return target;
         });
-
+        this.testUtils.waitForWorldChunks();
         this.testUtils.waitForInventoryPropagation();
 
-        this.client.lookAt(targetLocation.getPosition());
+        this.client.lookAt(targetPosition.getPosition());
 
-        if (!this.testUtils.runOnMainThread(targetLocation::getBlockType).equals(BlockTypes.AIR)) {
+        if (!this.testUtils.runOnMainThread(targetPosition::getBlockType).equals(BlockTypes.AIR)) {
             this.client.leftClick();
         }
 
