@@ -29,11 +29,6 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.2.51'
 }
 
-
-repositories {
-    mavenLocal()
-}
-
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 ext.minecraftVersion = forgeBuild
 ext.testmods = project.project('testmods')
@@ -156,10 +151,6 @@ uploadArchives {
 }
 
 apply from: 'changelog.gradle'
-
-//repositories {
-//    mavenLocal()
-//}
 
 dependencies {
     testCompile mcTesterDep
