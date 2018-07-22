@@ -79,10 +79,6 @@ public class BreakBlockUsedItem extends BaseTest {
                     Matchers.equalTo(Optional.of(stack.createSnapshot())));
 
         }));
-
         Assert.assertTrue("ChangeBlockEvent.Break was not fired!", gotPlayerEvent[0]);
-
-
-
     }
 }
