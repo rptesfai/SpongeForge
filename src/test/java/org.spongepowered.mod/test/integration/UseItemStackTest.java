@@ -54,6 +54,7 @@ import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -104,7 +105,7 @@ public class UseItemStackTest extends BaseTest {
         for (int i = 0; i < firstDuration[0]; i++) {
             expectedStates.add(UseItemState.TICK);
         }
-        expectedStates.addAll(Lists.newArrayList(UseItemState.FINISH, UseItemState.REPLACE, UseItemState.RESET));
+        Collections.addAll(expectedStates, UseItemState.FINISH, UseItemState.REPLACE, UseItemState.RESET);
 
         List<UseItemState> actualStates = useItemStateHolder.getHistory().stream().map(s -> s.state).collect(Collectors.toList());
         List<UseItemStackEvent> actualEvents = useItemStateHolder.getHistory().stream().map(s -> s.event).collect(Collectors.toList());
