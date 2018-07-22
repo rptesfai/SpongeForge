@@ -49,6 +49,7 @@ import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.api.junit.MinecraftRunner;
@@ -98,7 +99,7 @@ public class UseItemStackTest extends BaseTest {
         this.testUtils.sleepTicks(40);
         this.client.holdRightClick(false);
 
-        int expectedDuration = ((Item) stack.getType()).getMaxItemUseDuration((net.minecraft.item.ItemStack) (Object) stack);
+        int expectedDuration = ItemStackUtil.toNative(stack).getItem().getMaxItemUseDuration(ItemStackUtil.toNative(stack));
         assertThat("Unexpected item use duration!", firstDuration[0], is(expectedDuration));
 
         List<UseItemState> expectedStates = Lists.newArrayList(UseItemState.START);
