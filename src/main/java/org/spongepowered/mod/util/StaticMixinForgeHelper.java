@@ -25,7 +25,6 @@
 package org.spongepowered.mod.util;
 
 import com.google.common.collect.Lists;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -103,7 +102,6 @@ public final class StaticMixinForgeHelper {
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
         Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
         final List<ItemStack> itemStacks = Lists.newArrayList(inventory);
-        damage *= 25;
         // Beware all ye who enter here, for there's nothing but black magic here.
         ArrayList<ISpecialArmor.ArmorProperties> dmgVals = new ArrayList<ISpecialArmor.ArmorProperties>();
         for (int x = 0; x < itemStacks.size(); x++) {
@@ -121,15 +119,14 @@ public final class StaticMixinForgeHelper {
         if (property.isPresent()) {
             ItemStack stack = inventory.get(property.get().Slot);
 
-            damage = Math.abs(damage) * 25;
-            int itemDamage = (int) (damage / 25D < 1 ? 1 : damage / 25D);
+            int itemDamage = (int)Math.max(1, damage);
             if (stack.getItem() instanceof ISpecialArmor) {
                 ((ISpecialArmor) stack.getItem()).damageArmor(entity, stack, damageSource, itemDamage, property.get().Slot);
             } else {
                 stack.damageItem(itemDamage, entity);
             }
             if (stack.isEmpty()) {
-                inventory.set(property.get().Slot, ItemStack.EMPTY); // Totally unsure whether this is right....
+                inventory.set(property.get().Slot, ItemStack.EMPTY);
             }
         }
     }
@@ -155,7 +152,6 @@ public final class StaticMixinForgeHelper {
                     object.augment = true;
                 }
                 DoubleUnaryOperator function = incomingDamage -> {
-                    incomingDamage *= 25;
                     if (object.augment) {
                         damageToHandle = incomingDamage;
                     }
@@ -170,7 +166,7 @@ public final class StaticMixinForgeHelper {
                         object.level = prop.Priority;
                     }
                     object.ratio += prop.AbsorbRatio;
-                    return - ((functionDamage * prop.AbsorbRatio) / 25);
+                    return - (functionDamage * prop.AbsorbRatio);
                 };
                 // We still need to "simulate" the original function so that the ratios are handled
                 if (level != prop.Priority) {
@@ -227,11 +223,15 @@ public final class StaticMixinForgeHelper {
         }
         ISpecialArmor.ArmorProperties prop = null;
         if (armorStack.getItem() instanceof ISpecialArmor) {
-            ISpecialArmor armor = (ISpecialArmor) armorStack.getItem();
-            prop = armor.getProperties(base, armorStack, damageSource, damage / 25D, index).copy();
+            if (!damageSource.isUnblockable()) {
+                ISpecialArmor armor = (ISpecialArmor) armorStack.getItem();
+                prop = armor.getProperties(base, armorStack, damageSource, damage, index).copy();
+            }
         } else if (armorStack.getItem() instanceof ItemArmor && !damageSource.isUnblockable()) {
             ItemArmor armor = (ItemArmor) armorStack.getItem();
-            prop = new ISpecialArmor.ArmorProperties(0, armor.damageReduceAmount / 25D, Integer.MAX_VALUE);
+            prop = new ISpecialArmor.ArmorProperties(0, 0, Integer.MAX_VALUE);
+            prop.Armor = armor.damageReduceAmount;
+            prop.Toughness = armor.toughness;
         }
         if (prop != null) {
             prop.Slot = index;
@@ -270,9 +270,10 @@ public final class StaticMixinForgeHelper {
                             start = y + 1;
                             x = y;
                             break;
+                        } else {
+                            armor[y].AbsorbRatio = newRatio;
+                            pFinished = true;
                         }
-                        armor[y].AbsorbRatio = newRatio;
-                        pFinished = true;
                     }
                     if (pChange && pFinished) {
                         damage -= (damage * total);

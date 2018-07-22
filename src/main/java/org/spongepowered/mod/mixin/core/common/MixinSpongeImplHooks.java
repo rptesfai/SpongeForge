@@ -26,16 +26,17 @@ package org.spongepowered.mod.mixin.core.common;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -44,6 +45,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
@@ -51,7 +53,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
@@ -59,6 +60,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -223,6 +225,49 @@ public abstract class MixinSpongeImplHooks {
         return player.interactionManager.getBlockReachDistance();
     }
 
+    /**
+     * @author blood - July 21st, 2018
+     * @reason Forge compatibility
+     * 
+     * Applies vanilla's armor/toughness combat rules.
+     * 
+     * @param entityLivingBase The entity being attacked
+     * @param damage The amount of damage
+     * @param damageSource The damage source
+     * @return The final damage
+     */
+    @Overwrite
+    public static float getDamageAfterAbsorb(EntityLivingBase entityLivingBase, float damage, DamageSource damageSource) {
+        Iterable<net.minecraft.item.ItemStack> inventory = entityLivingBase.getArmorInventoryList();
+        final List<net.minecraft.item.ItemStack> itemStacks = Lists.newArrayList(inventory);
+        double totalArmor = entityLivingBase.getTotalArmorValue();
+        double totalToughness = entityLivingBase.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue();
+        if (damageSource.isUnblockable())
+        {
+            totalArmor = 0;
+            totalToughness = 0;
+        }
+
+        for (int x = 0; x < itemStacks.size(); x++) {
+            final net.minecraft.item.ItemStack armorStack = itemStacks.get(x);
+            if (armorStack.isEmpty()) {
+                continue;
+            }
+
+            ISpecialArmor.ArmorProperties properties = StaticMixinForgeHelper.getProperties(entityLivingBase, armorStack, damageSource, damage, x);
+            if (properties != null) {
+                System.out.println("armor " + armorStack + " has ratio " + properties.AbsorbRatio);
+            }
+            if (properties != null && armorStack.getItem() instanceof ISpecialArmor) {
+                if (!damageSource.isUnblockable()) {// || ((ISpecialArmor) armorStack.getItem()).handleUnblockableDamage(base, armorStack, damageSource, damage, index)) {
+                    totalArmor += properties.Armor;
+                    totalToughness += properties.Toughness;
+                }
+            }
+        }
+
+        return CombatRules.getDamageAfterAbsorb((float) damage, (float) totalArmor, (float) totalToughness);
+    }
     // Entity registry
 
     /**
