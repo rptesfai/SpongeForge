@@ -63,8 +63,6 @@ public class CrossDimensionCommandBlock extends BaseTest  {
 
         Location<World> targetPosition = this.testUtils.runOnMainThread(() -> {
 
-            //Sponge.getCommandManager().process(Sponge.getServer().getConsole(), "op " + McTester.getThePlayer().getName());
-
             WorldProperties worldProperties = Sponge.getServer().createWorldProperties("the_command_block_world",
                     WorldArchetype.builder().commandsAllowed(true).difficulty(Difficulties.PEACEFUL)
                             .dimension(DimensionTypes.OVERWORLD)
@@ -78,8 +76,7 @@ public class CrossDimensionCommandBlock extends BaseTest  {
             this.testUtils.getThePlayer().setLocation(world.getSpawnLocation());
             this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.COMMAND_BLOCK, 1));
 
-            Location<World> target = this.testUtils.getThePlayer().getLocation().add(0, 1, 1);
-            return target;
+            return this.testUtils.getThePlayer().getLocation().add(0, 1, 1);
         });
         this.testUtils.waitForWorldChunks();
         this.testUtils.waitForInventoryPropagation();
@@ -97,15 +94,6 @@ public class CrossDimensionCommandBlock extends BaseTest  {
         Optional<String> guiClass = this.client.getOpenGuiClass();
 
         assertThat("Failed to open command block gui!", guiClass, Matchers.equalTo(Optional.of("net.minecraft.client.gui.GuiCommandBlock")));
-
-        /*this.testUtils.runOnMainThread(() -> {
-            InventoryArchetype type = McTester.getThePlayer().getOpenInventory().orElseThrow(() -> new AssertionError("Failed to open command block gui!")).getArchetype();
-
-            assertThat(type, Matchers.equalTo(InventoryArchetypes.)
-
-            Assert.assertThat(McTester.getThePlayer().getOpenInventory().orElse(null), Matcher);
-        });*/
-
     }
 
 }
