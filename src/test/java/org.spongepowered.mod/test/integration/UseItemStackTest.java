@@ -86,15 +86,10 @@ public class UseItemStackTest extends BaseTest {
         final UseItemStateHolder useItemStateHolder = new UseItemStateHolder();
         final int[] firstDuration = new int[1];
 
-        this.testUtils.listen(new StandaloneEventListener<>(UseItemStackEvent.class, new EventListener<UseItemStackEvent>() {
-
-
-            @Override
-            public void handle(UseItemStackEvent event) throws Exception {
-                useItemStateHolder.transition(event);
-                if (event instanceof UseItemStackEvent.Start) {
-                    firstDuration[0] = event.getOriginalRemainingDuration();
-                }
+        this.testUtils.listen(new StandaloneEventListener<>(UseItemStackEvent.class, event -> {
+            useItemStateHolder.transition(event);
+            if (event instanceof UseItemStackEvent.Start) {
+                firstDuration[0] = event.getOriginalRemainingDuration();
             }
         }));
 
