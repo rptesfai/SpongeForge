@@ -109,7 +109,7 @@ public class CreeperTest extends BaseTest {
 
         EventListener<MoveEntityEvent> moveListener = this.testUtils.listen(new StandaloneEventListener<>(MoveEntityEvent.class, (MoveEntityEvent event) -> {
 
-            if (event.getTargetEntity().getUniqueId() == creeper[0].getUniqueId()) {
+            if (event.getTargetEntity().getUniqueId().equals(creeper[0].getUniqueId())) {
                 event.setCancelled(true);
             }
         }));
@@ -134,8 +134,6 @@ public class CreeperTest extends BaseTest {
         }, new StandaloneEventListener<>(PrimeExplosiveEvent.Pre.class, (PrimeExplosiveEvent.Pre primeEvent) -> {
             assertThat(primeEvent.getTargetEntity(), equalTo(creeper[0]));
             fuseDuration[0] = primeEvent.getTargetEntity().get(Keys.FUSE_DURATION).get();
-
-
         }));
 
         // We should expect blokcs to break once the duration is up.
