@@ -13,8 +13,6 @@ buildscript {
             name = 'forge'
             url = 'http://files.minecraftforge.net/maven'
         }
-        maven { url 'https://jitpack.io' }
-        mavenLocal()
     }
 
     dependencies {
@@ -33,7 +31,6 @@ plugins {
 
 
 repositories {
-    maven { url 'https://jitpack.io' }
     mavenLocal()
 }
 
