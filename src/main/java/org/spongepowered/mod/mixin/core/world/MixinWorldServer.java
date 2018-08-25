@@ -39,11 +39,11 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.mixin.core.world.MixinWorld;
-import org.spongepowered.common.util.ServerUtils;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
 import org.spongepowered.common.world.gen.SpongeWorldGenerator;
 import org.spongepowered.common.world.storage.SpongeChunkLayout;
@@ -62,7 +62,14 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
         return this.provider.getDimension();
     }
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/DimensionManager;setWorld(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V"))
+    @Redirect(
+        method = "<init>",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/common/DimensionManager;setWorld(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V",
+            remap = false
+        )
+    )
     private void redirectSetWorld(int id, WorldServer world, MinecraftServer server) {
         // Handled by WorldManager
     }
@@ -88,7 +95,7 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
         if (server.isBlockProtected(worldIn, pos, playerIn)) {
             return true;
         }
-        if (!this.isFake() && ServerUtils.isCallingFromMainThread()) {
+        if (!this.isFake() && SpongeImplHooks.isMainThread()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(playerIn.getActiveItemStack()));
@@ -107,11 +114,12 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
      * @return True if the block is modifiable
      */
     @Overwrite
+    @Override
     public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) {
         if (super.isBlockModifiable(player, pos)) {
             return true;
         }
-        if (!this.isFake() && ServerUtils.isCallingFromMainThread()) {
+        if (!this.isFake() && SpongeImplHooks.isMainThread()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));

@@ -22,32 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world;
+package org.spongepowered.mod.interfaces;
 
-import net.minecraft.world.World;
-import net.minecraft.world.WorldProvider;
-import org.spongepowered.api.world.Dimension;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import net.minecraft.village.MerchantRecipeList;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import org.spongepowered.common.interfaces.entity.IMixinVillager;
 
-@Mixin(value = WorldProvider.class)
-@Implements(@Interface(iface = Dimension.class, prefix = "dimension$"))
-public abstract class MixinWorldProvider implements Dimension {
-    @Shadow protected World world;
-    @Shadow(remap = false) public abstract int shadow$getHeight();
-    @Shadow(remap = false) public abstract int shadow$getActualHeight();
+public interface IMixinEntityVillagerForge extends IMixinVillager {
 
-    @Intrinsic
-    public int dimension$getHeight() {
-        return shadow$getActualHeight();
-    }
-
-    @Override
-    public int getBuildHeight() {
-        return shadow$getHeight();
-    }
+    MerchantRecipeList getForgeTrades();
 
 }

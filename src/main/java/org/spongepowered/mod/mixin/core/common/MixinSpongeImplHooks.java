@@ -64,11 +64,13 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.command.args.ChildCommandElementExecutor;
+import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
@@ -83,6 +85,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
@@ -92,12 +95,15 @@ import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.mod.command.SpongeForgeCommand;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
+import org.spongepowered.mod.mixin.core.forge.IMixinVillagerRegistry;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 import org.spongepowered.mod.util.WrappedArrayList;
@@ -105,6 +111,7 @@ import org.spongepowered.mod.util.WrappedArrayList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -117,7 +124,7 @@ public abstract class MixinSpongeImplHooks {
     private static Boolean deobfuscatedEnvironment;
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -126,7 +133,19 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author gabizou - July 9th, 2018
+     * @reason During client shutdown or the integrated server shut down, we have
+     * to be able to detect the integrated server is shutting down and we should not
+     * be bothering with the phase tracker or cause stack manager.
+     * @return
+     */
+    @Overwrite
+    public static boolean isClientAvailable() {
+        return FMLCommonHandler.instance().getSide().isClient();
+    }
+
+    /**
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -140,7 +159,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -151,7 +170,7 @@ public abstract class MixinSpongeImplHooks {
     // Entity
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -160,7 +179,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -169,7 +188,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -178,7 +197,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -187,7 +206,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -196,9 +215,10 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static double getBlockReachDistance(EntityPlayerMP player) {
         return player.interactionManager.getBlockReachDistance();
@@ -207,7 +227,7 @@ public abstract class MixinSpongeImplHooks {
     // Entity registry
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Nullable
@@ -217,7 +237,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -228,7 +248,7 @@ public abstract class MixinSpongeImplHooks {
     // Block
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -237,7 +257,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -246,7 +266,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -261,7 +281,7 @@ public abstract class MixinSpongeImplHooks {
     // Tile entity
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Nullable
@@ -271,7 +291,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -280,7 +300,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -289,15 +309,15 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
     public static void onTileChunkUnload(TileEntity te) {
         if (!te.getWorld().isRemote) {
             try (final PhaseContext<?> o = BlockPhase.State.TILE_CHUNK_UNLOAD.createPhaseContext()
-                .source(te)
-                .buildAndSwitch()) {
+                .source(te)) {
+                o.buildAndSwitch();
                 te.onChunkUnload();
             }
         }
@@ -306,7 +326,7 @@ public abstract class MixinSpongeImplHooks {
     // World
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -315,7 +335,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -336,7 +356,7 @@ public abstract class MixinSpongeImplHooks {
     // World provider
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -345,7 +365,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -354,7 +374,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -363,7 +383,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -372,7 +392,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -381,7 +401,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -390,7 +410,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -399,9 +419,10 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static SpawnerSpawnType canEntitySpawnHere(EntityLiving entityLiving, boolean entityNotColliding) {
         final World world = entityLiving.world;
@@ -422,14 +443,15 @@ public abstract class MixinSpongeImplHooks {
     // Copied from Forge's World patches
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static void onEntityError(Entity entity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringEntities) {
             // Sponge - fix https://github.com/MinecraftForge/MinecraftForge/issues/3713
-            FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
+            net.minecraftforge.fml.relauncher.FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
             entity.getEntityWorld().removeEntity(entity);
         } else {
             throw new ReportedException(crashReport);
@@ -437,14 +459,15 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static void onTileEntityError(TileEntity tileEntity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringTileEntities) {
             // Sponge - fix https://github.com/MinecraftForge/MinecraftForge/issues/3713
-            FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
+            net.minecraftforge.fml.relauncher.FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
             tileEntity.invalidate();
             tileEntity.getWorld().removeTileEntity(tileEntity.getPos());
         } else {
@@ -453,7 +476,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -461,35 +484,56 @@ public abstract class MixinSpongeImplHooks {
         block.onBlockExploded(world, blockpos, explosion);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean isRestoringBlocks(World world) {
-        if (world.restoringBlockSnapshots || PhaseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS) {
-                return true;
-        }
+        return world.restoringBlockSnapshots || PhaseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS;
 
-        return false;
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static void onTileEntityChunkUnload(net.minecraft.tileentity.TileEntity tileEntity) {
         tileEntity.onChunkUnload();
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean canConnectRedstone(Block block, IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
         return block.canConnectRedstone(state, world, pos, side);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static void setShouldLoadSpawn(net.minecraft.world.DimensionType dimensionType, boolean keepSpawnLoaded) {
         ((IMixinDimensionType)(Object) dimensionType).setShouldLoadSpawn(keepSpawnLoaded);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static BlockPos getBedLocation(EntityPlayer player, int dimension) {
         return player.getBedLocation(dimension);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean isSpawnForced(EntityPlayer player, int dimension) {
         return player.isSpawnForced(dimension);
@@ -497,7 +541,7 @@ public abstract class MixinSpongeImplHooks {
     // Crafting
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -512,7 +556,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -521,7 +565,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -531,16 +575,17 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static Collection<CraftingRecipe> getCraftingRecipes() {
         return Streams.stream(ForgeRegistries.RECIPES.getValues()).map(CraftingRecipe.class::cast).collect(ImmutableList.toImmutableList());
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -553,7 +598,21 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
+     * @author unknown
+     * @reason Forge compatibility
+     */
+    @Overwrite
+    public static Optional<CraftingRecipe> getRecipeById(CatalogKey id) {
+        IRecipe recipe = ForgeRegistries.RECIPES.getValue((ResourceLocation) (Object) id);
+        if (recipe == null) {
+            return Optional.empty();
+        }
+        return Optional.of(((CraftingRecipe) recipe));
+    }
+
+    /**
      * @author Grinch
+     * @reason forge
      */
     @Overwrite
     public static Text getAdditionalCommandDescriptions() {
@@ -562,6 +621,7 @@ public abstract class MixinSpongeImplHooks {
 
     /**
      * @author Grinch
+     * @reason forge
      */
     @Overwrite
     public static void registerAdditionalCommands(ChildCommandElementExecutor flagChildren, ChildCommandElementExecutor nonFlagChildren) {
@@ -601,8 +661,8 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void onTileEntityInvalidate(TileEntity te) {
         try (final PhaseContext<?> o = BlockPhase.State.TILE_ENTITY_INVALIDATING.createPhaseContext()
-            .source(te)
-            .buildAndSwitch()) {
+            .source(te)) {
+            o.buildAndSwitch();
             te.invalidate();
         }
     }
@@ -610,9 +670,9 @@ public abstract class MixinSpongeImplHooks {
     /**
      * @author gabizou
      * @reason Supports using the captured drop list for entities from forge.
-     * @param phaseContext
-     * @param owner
-     * @param entityitem
+     * @param phaseContext context
+     * @param owner owner
+     * @param entityitem item to drop
      */
     @Overwrite
     public static void capturePerEntityItemDrop(PhaseContext<?> phaseContext, Entity owner,
@@ -633,6 +693,8 @@ public abstract class MixinSpongeImplHooks {
 
     /**
      * @author gabizou - April 21st, 2018
+     * @reason Use ForgeHooks for looting level compatibility.
+     *
      * @param entity The entity passed in
      * @return The modifier based on forge hooks.
      */
@@ -640,4 +702,68 @@ public abstract class MixinSpongeImplHooks {
     public static int getLootingEnchantmentModifier(IMixinEntityLivingBase mixinEntityLivingBase, EntityLivingBase entity, DamageSource cause) {
         return ForgeHooks.getLootingLevel(EntityUtil.toNative(mixinEntityLivingBase), entity, cause);
     }
+
+    /**
+     * @author gabizou - June 19th, 2018
+     * @reason Fallback to verify the VillagerProfession is available from forge first, then try
+     * to get the sponge Profession from that.
+     *
+     * @param professionId
+     * @return
+     */
+    @Overwrite
+    public static Profession validateProfession(int professionId) {
+        final VillagerRegistry.VillagerProfession
+            profession =
+            ((IMixinVillagerRegistry) VillagerRegistry.instance()).getREGISTRY().getObjectById(professionId);
+        if (profession == null) {
+            throw new RuntimeException("Attempted to set villager profession to unregistered profession: " + professionId + " " + profession);
+        }
+        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) profession;
+        return mixinProfession.getSpongeProfession().orElseGet(() -> {
+            final SpongeProfession newProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
+            mixinProfession.setSpongeProfession(newProfession);
+            ProfessionRegistryModule.getInstance().registerAdditionalCatalog(newProfession);
+            return newProfession;
+        });
+
+    }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onTETickStart(TileEntity tileentity) {
+        net.minecraftforge.server.timings.TimeTracker.TILE_ENTITY_UPDATE.trackStart(tileentity);
+    }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onTETickEnd(TileEntity tileentity) {
+        net.minecraftforge.server.timings.TimeTracker.TILE_ENTITY_UPDATE.trackEnd(tileentity);
+    }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onEntityTickStart(Entity entity) {
+        net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackStart(entity);
+    }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onEntityTickEnd(Entity entity) {
+        net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackEnd(entity);
+    }
+
+
 }

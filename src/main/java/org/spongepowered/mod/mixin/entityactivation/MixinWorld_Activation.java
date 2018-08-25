@@ -28,7 +28,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,12 +42,16 @@ import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModDat
 @Mixin(value = net.minecraft.world.World.class, priority = 999)
 public abstract class MixinWorld_Activation implements IMixinWorld {
 
-    @Shadow @Final public boolean isRemote;
 
-    @Shadow protected abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
-    @Shadow public abstract Chunk getChunkFromChunkCoords(int chunkX, int chunkZ);
     @Shadow public abstract void updateEntity(Entity ent);
 
+    /**
+     * @author blood
+     * @reason Activation range checks.
+     *
+     * @param entityIn
+     * @param forceUpdate
+     */
     @Overwrite
     public void updateEntityWithOptionalForce(Entity entityIn, boolean forceUpdate)
     {
