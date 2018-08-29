@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ForgeFluidTankDataProcessor extends AbstractSingleDataSingleTargetProcessor<TileEntity, Map<Direction, List<FluidStackSnapshot>>,
-    MapValue.Mutable<Direction, List<FluidStackSnapshot>>, FluidTankData, ImmutableFluidTankData> {
+    MapValue<Direction, List<FluidStackSnapshot>>, FluidTankData, ImmutableFluidTankData> {
 
     public ForgeFluidTankDataProcessor() {
         super(Keys.FLUID_TANK_CONTENTS, TileEntity.class);
