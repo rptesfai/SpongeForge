@@ -60,7 +60,8 @@ sponge.plugin.meta {
 }
 
 dependencies {
-    runtime testmods
+    // TODO - re-enable when 1.13 is compiling
+    //runtime testmods
 }
 
 compileJava {
@@ -131,7 +132,8 @@ tasks.withType(ShadowJar) {
     relocate('com.typesafe.config', 'configurate.typesafe.config')
 
     dependencies {
-        exclude project(testmods.path)
+        // TODO - re-enable when 1.13 is compiling
+        //exclude project(testmods.path)
 
         include dependency('com.typesafe:config')
 
