@@ -63,6 +63,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -103,6 +104,8 @@ import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
 import org.spongepowered.common.registry.type.item.PotionTypeRegistryModule;
+import org.spongepowered.common.scheduler.ClientScheduler;
+import org.spongepowered.common.scheduler.ServerScheduler;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
@@ -138,7 +141,8 @@ public class SpongeMod extends MetaModContainer {
     @javax.annotation.Nullable public static Thread SERVVER_THREAD;
 
     @Inject private SpongeGame game;
-    @Inject private SpongeScheduler scheduler;
+    @Nullable private ServerScheduler serverScheduler; // TODO: Proper init location
+    @Nullable private ClientScheduler clientScheduler; // TODO: Proper init location
     @Inject private Logger logger;
 
     private LoadController controller;
@@ -358,18 +362,18 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            this.scheduler.tickSyncScheduler();
+            this.serverScheduler.tick();
         }
     }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
-        // If we haven't launched the integrated server, allow the sync scheduler to still pulse tasks
-        if (!Minecraft.getMinecraft().isIntegratedServerRunning()) {
-            if (event.phase == TickEvent.Phase.START) {
-                this.scheduler.tickSyncScheduler();
+        if (event.phase == TickEvent.Phase.START) {
+            if (this.clientScheduler == null) {
+                this.clientScheduler = new ClientScheduler();
             }
+            this.clientScheduler.tick();
         }
     }
 
@@ -430,11 +434,12 @@ public class SpongeMod extends MetaModContainer {
         for (EntityEntry entry : ForgeRegistries.ENTITIES) {
             StaticMixinForgeHelper.registerCustomEntity(entry);
         }
-
     }
 
     @Subscribe
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
+        this.serverScheduler = new ServerScheduler();
+
         try {
             try {
                 ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
@@ -471,7 +476,6 @@ public class SpongeMod extends MetaModContainer {
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
-
     }
 
     @Subscribe
