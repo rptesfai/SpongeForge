@@ -394,11 +394,4 @@ public final class StaticMixinForgeHelper {
             EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
         }
     }
-
-    public static boolean shouldTakeOverModNetworking(ModContainer mod) {
-        if (mod == null) {
-            return false;
-        }
-        return SpongeImpl.getGlobalConfig().getConfig().getBrokenMods().getBrokenNetworkHandlerMods().contains(mod.getModId());
-    }
 }
